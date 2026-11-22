@@ -1,0 +1,266 @@
+{
+  "schema": "ripplelens/impact@1",
+  "tool": {
+    "name": "ripplelens",
+    "version": "0.1.0"
+  },
+  "generated_at": "2026-11-21T15:21:24+00:00",
+  "repo": {
+    "root": "C:\\Users\\jiangxiaoyu\\AppData\\Local\\Temp\\ripplelens-scenarios\\python-signature",
+    "analyzed_root": "C:\\Users\\jiangxiaoyu\\AppData\\Local\\Temp\\ripplelens-scenarios\\python-signature",
+    "base": {
+      "ref": "HEAD",
+      "sha": "e83d9228234b192e83c38c0a9be188dd759f18c3"
+    },
+    "head": {
+      "ref": "working tree",
+      "sha": null
+    }
+  },
+  "options": {
+    "max_depth": 3,
+    "body_depth": 2,
+    "max_nodes": 400,
+    "min_score": 0.05,
+    "hub_threshold": 25,
+    "hub_keep": 8,
+    "request_timeout": 60.0,
+    "value_refs": true,
+    "dispatch": true,
+    "diagnostics": true,
+    "base_server": true
+  },
+  "servers": [
+    {
+      "name": "pyright",
+      "language": "python",
+      "files": 1,
+      "status": "ok",
+      "reason": null,
+      "version": "1.40.2",
+      "server_name": "basedpyright",
+      "init_seconds": 0.42,
+      "ready_seconds": 1.41,
+      "project_notes": []
+    }
+  ],
+  "summary": {
+    "files_changed": 1,
+    "entities_changed": 1,
+    "by_change": {
+      "signature": 1
+    },
+    "impacted": 3,
+    "impacted_files": 1,
+    "breaking": 3,
+    "degraded": 0,
+    "truncated": false
+  },
+  "files": [
+    {
+      "path": "fx/lib.py",
+      "old_path": null,
+      "status": "M",
+      "language": "python",
+      "server": "pyright",
+      "added": 2,
+      "removed": 2,
+      "entities": [
+        "fx/lib.py#helper@19"
+      ],
+      "module_lines": [],
+      "degraded": [],
+      "impacted_files": [
+        {
+          "path": "fx/app.py",
+          "score": 0.6
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "fx/lib.py#helper@19",
+      "path": "fx/lib.py",
+      "name": "helper",
+      "qualname": "helper",
+      "kind": "function",
+      "lines": [
+        19,
+        20
+      ],
+      "change": "signature",
+      "depth": 0,
+      "score": 1.0,
+      "via": null,
+      "parent": null,
+      "seeds": [
+        "fx/lib.py#helper@19"
+      ],
+      "confidence": "precise",
+      "reasons": [],
+      "breaking": [],
+      "truncated": null,
+      "signature": {
+        "before": "(function) def helper(x: int) -> int",
+        "after": "(function) def helper( x: int, y: int ) -> int"
+      },
+      "renamed_from": null,
+      "lines_changed": 4,
+      "on_base": false,
+      "notes": [],
+      "impacted": 3
+    },
+    {
+      "id": "fx/app.py#a@6",
+      "path": "fx/app.py",
+      "name": "a",
+      "qualname": "a",
+      "kind": "function",
+      "lines": [
+        6,
+        7
+      ],
+      "change": null,
+      "depth": 1,
+      "score": 0.6,
+      "via": "call",
+      "parent": "fx/lib.py#helper@19",
+      "seeds": [
+        "fx/lib.py#helper@19"
+      ],
+      "confidence": "precise",
+      "reasons": [],
+      "breaking": [
+        {
+          "line": 7,
+          "message": "Argument missing for parameter \"y\"",
+          "source": "basedpyright"
+        }
+      ],
+      "truncated": null
+    },
+    {
+      "id": "fx/app.py#b@10",
+      "path": "fx/app.py",
+      "name": "b",
+      "qualname": "b",
+      "kind": "function",
+      "lines": [
+        10,
+        11
+      ],
+      "change": null,
+      "depth": 1,
+      "score": 0.6,
+      "via": "call",
+      "parent": "fx/lib.py#helper@19",
+      "seeds": [
+        "fx/lib.py#helper@19"
+      ],
+      "confidence": "precise",
+      "reasons": [],
+      "breaking": [
+        {
+          "line": 11,
+          "message": "Argument missing for parameter \"y\"",
+          "source": "basedpyright"
+        }
+      ],
+      "truncated": null
+    },
+    {
+      "id": "fx/app.py#c@18",
+      "path": "fx/app.py",
+      "name": "c",
+      "qualname": "c",
+      "kind": "function",
+      "lines": [
+        18,
+        19
+      ],
+      "change": null,
+      "depth": 1,
+      "score": 0.48,
+      "via": "ref",
+      "parent": "fx/lib.py#helper@19",
+      "seeds": [
+        "fx/lib.py#helper@19"
+      ],
+      "confidence": "precise",
+      "reasons": [],
+      "breaking": [
+        {
+          "line": 19,
+          "message": "Argument of type \"(x: int, y: int) -> int\" cannot be assigned to parameter \"f\" of type \"(int) -> int\" in function \"register\"\n  Type \"(x: int, y: int) -> int\" is not assignable to type \"(int) -> int\"\n    Extra parameter \"y\"",
+          "source": "basedpyright"
+        }
+      ],
+      "truncated": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "fx/lib.py#helper@19",
+      "target": "fx/app.py#a@6",
+      "kind": "call",
+      "sites": [
+        7
+      ]
+    },
+    {
+      "source": "fx/lib.py#helper@19",
+      "target": "fx/app.py#b@10",
+      "kind": "call",
+      "sites": [
+        11
+      ]
+    },
+    {
+      "source": "fx/lib.py#helper@19",
+      "target": "fx/app.py#c@18",
+      "kind": "ref",
+      "sites": [
+        19
+      ]
+    },
+    {
+      "source": "fx/app.py#a@6",
+      "target": "fx/app.py#b@10",
+      "kind": "call",
+      "sites": [
+        11
+      ]
+    }
+  ],
+  "paths": {
+    "fx/app.py#a@6": [
+      "fx/lib.py#helper@19",
+      "fx/app.py#a@6"
+    ],
+    "fx/app.py#b@10": [
+      "fx/lib.py#helper@19",
+      "fx/app.py#b@10"
+    ],
+    "fx/app.py#c@18": [
+      "fx/lib.py#helper@19",
+      "fx/app.py#c@18"
+    ]
+  },
+  "truncation": [],
+  "blind_spots": {
+    "python": [
+      "getattr/setattr and other dynamic attribute access",
+      "untyped code where the receiver type is unknown",
+      "decorator or metaclass indirection",
+      "monkey patching"
+    ]
+  },
+  "warnings": [],
+  "timing": {
+    "total_seconds": 3.05,
+    "requests": 10,
+    "request_seconds": 0.03,
+    "timeouts": 0
+  }
+}

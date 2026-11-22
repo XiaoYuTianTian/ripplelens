@@ -1,0 +1,12 @@
+{
+  "name": "ripplelens",
+  "version": "0.1.0",
+  "description": "Function-level blast radius of your git diff, computed by compiler-backed language servers. MCP tools plus a review skill for Cursor agents.",
+  "author": { "name": "ripplelens contributors" },
+  "homepage": "https://github.com/XiaoYuTianTian/ripplelens",
+  "repository": "https://github.com/XiaoYuTianTian/ripplelens",
+  "license": "MIT",
+  "keywords": ["code-review", "impact-analysis", "blast-radius", "lsp", "mcp"],
+  "skills": ["../skills/ripplelens"],
+  "mcpServers": "../.mcp.json"
+}

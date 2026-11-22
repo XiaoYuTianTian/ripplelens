@@ -1,0 +1,44 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+*.egg
+
+# Node / web
+web/node_modules/
+web/dist/
+*.tsbuildinfo
+
+# Built UI is committed so the wheel and editable installs work without npm;
+# rebuild with `npm --prefix web run build` before release.
+# src/ripplelens/web_dist/ stays tracked.
+
+# Editors / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Local tools, demos, recordings scratch
+_scratch/
+*.log
+.ripplelens/
+eval/scenario-results/*.tmp
+/tmp/
+
+# Secrets — never commit AI keys
+**/config.json
+!.claude-plugin/**/config.json

@@ -1,0 +1,64 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ripplelens"
+version = "0.1.0"
+description = "RippleLens: function-level blast radius of a git diff, computed by compiler-backed language servers (LSP). Web review UI, Markdown, and MCP for AI reviewers."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+authors = [{ name = "ripplelens contributors" }]
+keywords = ["code-review", "impact-analysis", "lsp", "blast-radius", "mcp", "claude-code", "call-graph", "ripplelens"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX :: Linux",
+  "Operating System :: MacOS",
+  "Programming Language :: Python :: 3",
+  "Topic :: Software Development :: Quality Assurance",
+]
+dependencies = ["mcp>=1.2"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.6"]
+record = ["playwright>=1.40", "pillow>=10"]
+
+[project.scripts]
+ripplelens = "ripplelens.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/XiaoYuTianTian/ripplelens"
+Issues = "https://github.com/XiaoYuTianTian/ripplelens/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ripplelens"]
+artifacts = ["src/ripplelens/web_dist/**"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/ripplelens", "README.md", "LICENSE", "docs", "tests"]
+artifacts = ["src/ripplelens/web_dist/**"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["lsp: needs real language servers on PATH (or RIPPLELENS_TOOLS)"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+ignore = [
+  "SIM102",  # nested if often clearer than a long and-
+  "PLW1510",  # subprocess.run: callers inspect returncode
+  "S110",  # intentional bare except on LSP process teardown
+  "BLE001",  # same
+  "ISC004",  # intentional adjacent string pieces in lists
+  "RUF015",  # [x for ...][0] is fine in tests
+  "RUF034",
+  "RUF059",  # unused unpack kept for readability
+]

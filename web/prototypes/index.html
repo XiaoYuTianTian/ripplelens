@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>RippleLens 风格原型</title>
+<style>
+  body { margin: 0; padding: 48px; font: 15px/1.6 "Segoe UI", "PingFang SC", system-ui, sans-serif; background: #f5f5f4; color: #1c1917; }
+  h1 { font-weight: 600; margin: 0 0 6px; }
+  p { color: #57534e; margin: 0 0 28px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 1200px; }
+  a { display: block; padding: 22px; border-radius: 14px; text-decoration: none; color: inherit; border: 1px solid #e7e5e4; background: #fff; }
+  a:hover { border-color: #a8a29e; }
+  b { display: block; font-size: 18px; margin-bottom: 4px; }
+  span { color: #78716c; font-size: 13px; }
+  .ink { background: #f6f2ea; } .graphite { background: #0a0a0b; color: #ededef; border-color: #232327; } .porcelain { background: linear-gradient(135deg, #fde8df, #e3e8ff); }
+  .graphite span { color: #a1a1aa; }
+</style>
+</head>
+<body>
+  <h1>RippleLens 风格原型</h1>
+  <p>同一份数据、同一套交互，三种视觉语言。每个页面底部可切换：默认、悬浮、点击聚焦、大量文件、AI 评审。</p>
+  <div class="grid">
+    <a class="ink" href="ink.html"><b>Ink 纸墨</b><span>暖白纸底、衬线标题、细线无阴影</span></a>
+    <a class="graphite" href="graphite.html"><b>Graphite 石墨</b><span>近黑中性色、1px 细边、克制高光</span></a>
+    <a class="porcelain" href="porcelain.html"><b>Porcelain 瓷白</b><span>冷白底、柔和阴影、大圆角、毛玻璃</span></a>
+  </div>
+</body>
+</html>

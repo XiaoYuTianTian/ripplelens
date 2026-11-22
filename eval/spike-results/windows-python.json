@@ -1,0 +1,123 @@
+{
+  "lang": "python",
+  "server": "pyright",
+  "platform": "Windows-10-10.0.19045-SP0",
+  "server_info": {
+    "name": "basedpyright",
+    "version": "1.40.2"
+  },
+  "init_seconds": 0.44,
+  "ready": true,
+  "ready_reason": "",
+  "ready_seconds": 1.88,
+  "progress_seen": 0,
+  "capabilities": {
+    "documentSymbolProvider": true,
+    "hoverProvider": true,
+    "referencesProvider": true,
+    "implementationProvider": true,
+    "callHierarchyProvider": true,
+    "typeHierarchyProvider": false
+  },
+  "results": {
+    "helper": {
+      "entity": {
+        "qualname": "helper",
+        "kind": "function",
+        "line": 19
+      },
+      "hover": "```python\n(function) def helper(x: int) -> int\n```",
+      "references": [
+        "<module>",
+        "a",
+        "b",
+        "c"
+      ],
+      "incoming": [
+        "a",
+        "b"
+      ],
+      "prepare_items": 1,
+      "implementations": []
+    },
+    "circle_area": {
+      "entity": {
+        "qualname": "Circle.area",
+        "kind": "method",
+        "line": 15
+      },
+      "hover": "```python\n(method) def area(self: Self@Circle) -> float\n```",
+      "references": [
+        "d"
+      ],
+      "incoming": [
+        "d"
+      ],
+      "prepare_items": 1,
+      "implementations": [
+        "Circle.area"
+      ]
+    },
+    "shape_area": {
+      "entity": {
+        "qualname": "Shape.area",
+        "kind": "method",
+        "line": 8
+      },
+      "hover": "```python\n(method) def area(self: Self@Shape) -> float\n```",
+      "references": [
+        "total"
+      ],
+      "incoming": [
+        "total"
+      ],
+      "prepare_items": 1,
+      "implementations": [
+        "Circle.area",
+        "Shape.area"
+      ]
+    },
+    "limit": {
+      "entity": {
+        "qualname": "LIMIT",
+        "kind": "constant",
+        "line": 3
+      },
+      "hover": "```python\n(constant) LIMIT: Literal[10]\n```",
+      "references": [
+        "helper"
+      ]
+    }
+  },
+  "checks": {
+    "helper: incomingCalls finds direct callers {a,b}": true,
+    "helper: references finds value use in c": true,
+    "helper: incomingCalls also lists c": false,
+    "Circle.area: incomingCalls finds d": true,
+    "Circle.area: incomingCalls includes interface-dispatch caller total": false,
+    "Circle.area: references include total": false,
+    "Shape.area: incomingCalls finds total": true,
+    "Shape.area: implementation finds Circle.area": true,
+    "constant: references finds helper": true
+  },
+  "timings": {
+    "helper.hover": 0.015,
+    "helper.references": 0.016,
+    "helper.prepareCallHierarchy": 0.0,
+    "helper.incomingCalls": 0.0,
+    "helper.implementation": 0.0,
+    "circle_area.hover": 0.016,
+    "circle_area.references": 0.0,
+    "circle_area.prepareCallHierarchy": 0.0,
+    "circle_area.incomingCalls": 0.0,
+    "circle_area.implementation": 0.0,
+    "shape_area.hover": 0.015,
+    "shape_area.references": 0.0,
+    "shape_area.prepareCallHierarchy": 0.0,
+    "shape_area.incomingCalls": 0.0,
+    "shape_area.implementation": 0.0,
+    "limit.hover": 0.0,
+    "limit.references": 0.0
+  },
+  "total_seconds": 2.0
+}

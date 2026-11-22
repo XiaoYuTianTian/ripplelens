@@ -1,0 +1,127 @@
+{
+  "lang": "ts",
+  "server": "typescript",
+  "platform": "Windows-10-10.0.19045-SP0",
+  "server_info": {
+    "name": "typescript-go",
+    "version": "7.0.2"
+  },
+  "init_seconds": 0.16,
+  "ready": true,
+  "ready_reason": "",
+  "ready_seconds": 1.17,
+  "progress_seen": 0,
+  "capabilities": {
+    "documentSymbolProvider": true,
+    "hoverProvider": true,
+    "referencesProvider": true,
+    "implementationProvider": true,
+    "callHierarchyProvider": true,
+    "typeHierarchyProvider": false
+  },
+  "results": {
+    "helper": {
+      "entity": {
+        "qualname": "helper",
+        "kind": "function",
+        "line": 15
+      },
+      "hover": "```typescript\nfunction helper(x: number): number\n```\n",
+      "references": [
+        "a",
+        "b",
+        "c"
+      ],
+      "incoming": [
+        "a",
+        "b"
+      ],
+      "prepare_items": 1,
+      "implementations": [
+        "helper"
+      ]
+    },
+    "circle_area": {
+      "entity": {
+        "qualname": "Circle.area",
+        "kind": "method",
+        "line": 10
+      },
+      "hover": "```typescript\n(method) Circle.area(): number\n```\n",
+      "references": [
+        "d",
+        "total"
+      ],
+      "incoming": [
+        "d",
+        "total"
+      ],
+      "prepare_items": 1,
+      "implementations": [
+        "Circle.area"
+      ]
+    },
+    "shape_area": {
+      "entity": {
+        "qualname": "Shape.area",
+        "kind": "method",
+        "line": 4
+      },
+      "hover": "```typescript\n(method) Shape.area(): number\n```\n",
+      "references": [
+        "d",
+        "total"
+      ],
+      "incoming": [
+        "d",
+        "total"
+      ],
+      "prepare_items": 1,
+      "implementations": [
+        "Circle.area"
+      ]
+    },
+    "limit": {
+      "entity": {
+        "qualname": "LIMIT",
+        "kind": "variable",
+        "line": 1
+      },
+      "hover": "```typescript\nconst LIMIT: 10\n```\n",
+      "references": [
+        "helper"
+      ]
+    }
+  },
+  "checks": {
+    "helper: incomingCalls finds direct callers {a,b}": true,
+    "helper: references finds value use in c": true,
+    "helper: incomingCalls also lists c": false,
+    "Circle.area: incomingCalls finds d": true,
+    "Circle.area: incomingCalls includes interface-dispatch caller total": true,
+    "Circle.area: references include total": true,
+    "Shape.area: incomingCalls finds total": true,
+    "Shape.area: implementation finds Circle.area": true,
+    "constant: references finds helper": true
+  },
+  "timings": {
+    "helper.hover": 0.0,
+    "helper.references": 0.0,
+    "helper.prepareCallHierarchy": 0.0,
+    "helper.incomingCalls": 0.0,
+    "helper.implementation": 0.015,
+    "circle_area.hover": 0.0,
+    "circle_area.references": 0.047,
+    "circle_area.prepareCallHierarchy": 0.016,
+    "circle_area.incomingCalls": 0.0,
+    "circle_area.implementation": 0.0,
+    "shape_area.hover": 0.015,
+    "shape_area.references": 0.0,
+    "shape_area.prepareCallHierarchy": 0.0,
+    "shape_area.incomingCalls": 0.0,
+    "shape_area.implementation": 0.032,
+    "limit.hover": 0.0,
+    "limit.references": 0.0
+  },
+  "total_seconds": 1.3
+}

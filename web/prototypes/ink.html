@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-CN" data-style="Ink">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>RippleLens · Ink</title>
+<link rel="stylesheet" href="shared/base.css" />
+<style>
+  /* Ink: warm paper, ink text, serif display type, hairlines, no shadows */
+  :root {
+    --font-ui: "Segoe UI", "PingFang SC", "Microsoft YaHei UI", system-ui, sans-serif;
+    --font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, "Noto Serif SC", "Songti SC", "SimSun", serif;
+    --font-mono: "JetBrains Mono", "Cascadia Mono", Consolas, ui-monospace, monospace;
+    --bg: #f6f2ea; --board-bg: #f6f2ea; --surface: #fffdf8; --surface-2: #efe9dd; --drawer-bg: #fffdf8;
+    --border: #e4dccd; --border-strong: #cfc4b0; --row-hover: #f4eee2;
+    --text: #1f1b16; --text-2: #5b5246; --text-3: #8f8676;
+    --changed: #c2532d; --changed-strong: #a3401f; --on-changed: #fffaf3;
+    --impact: #33508f; --impact-strong: #2a447c; --wire: #33508f;
+    --danger: #b3261e; --danger-soft: #f6e0dc; --danger-border: #e6b8b0;
+    --warn: #8a5a00; --warn-soft: #f3e6c8; --ok: #3f7a4a; --ai: #6b4fa0; --ai-soft: #ece4f6;
+    --lang-java: #b07a3c; --lang-ts: #3e6fa8;
+    --diff-del: #f6e3dd; --diff-del-text: #8c2f1a; --diff-add: #e5eedf; --diff-add-text: #2e5b2a; --code-bg: #f4eee2;
+    --radius: 4px; --radius-sm: 3px; --tag-radius: 2px;
+    --shadow: none; --shadow-lift: 0 0 0 1px var(--changed); --drawer-shadow: none;
+    --topbar-bg: #f6f2ea; --topbar-blur: none;
+    --col-gap: 72px; --fade: .28;
+    --brand-weight: 600; --brand-tracking: .01em;
+    --col-title-weight: 500; --col-title-size: 20px; --col-title-tracking: 0;
+    --d-title-weight: 500; --sub-transform: none; --sub-tracking: 0;
+    --switch-bg: #1f1b16; --switch-text: #f6f2ea; --switch-on: rgba(255,255,255,.14);
+  }
+  .brand-name { font-size: 19px; font-style: italic; }
+  .col-head { border-bottom: 1px solid var(--border-strong); margin-bottom: 14px; padding-bottom: 10px; }
+  .card::before { top: 0; bottom: 0; left: -1px; width: 2px; border-radius: 0; }
+  .tag { text-transform: none; }
+  .group-head { border-bottom: 1px dotted var(--border-strong); margin-bottom: 8px; }
+  .metric b { font-size: 20px; font-weight: 500; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="shared/data.js"></script>
+<script src="shared/proto.js"></script>
+</body>
+</html>

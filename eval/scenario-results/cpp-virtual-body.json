@@ -1,0 +1,321 @@
+{
+  "schema": "ripplelens/impact@1",
+  "tool": {
+    "name": "ripplelens",
+    "version": "0.1.0"
+  },
+  "generated_at": "2026-11-21T15:21:57+00:00",
+  "repo": {
+    "root": "C:\\Users\\jiangxiaoyu\\AppData\\Local\\Temp\\ripplelens-scenarios\\cpp-virtual-body",
+    "analyzed_root": "C:\\Users\\jiangxiaoyu\\AppData\\Local\\Temp\\ripplelens-scenarios\\cpp-virtual-body",
+    "base": {
+      "ref": "HEAD",
+      "sha": "cecec4f8930133f92c1154904e1f9bb2b8571b57"
+    },
+    "head": {
+      "ref": "working tree",
+      "sha": null
+    }
+  },
+  "options": {
+    "max_depth": 3,
+    "body_depth": 2,
+    "max_nodes": 400,
+    "min_score": 0.05,
+    "hub_threshold": 25,
+    "hub_keep": 8,
+    "request_timeout": 60.0,
+    "value_refs": true,
+    "dispatch": true,
+    "diagnostics": true,
+    "base_server": true
+  },
+  "servers": [
+    {
+      "name": "clangd",
+      "language": "c/c++",
+      "files": 1,
+      "status": "ok",
+      "reason": null,
+      "version": "clangd version 23.1.0 (https://github.com/llvm/llvm-project ea7d852a70e8bdfaf601d6626a760f9771b2c4b4) windows+grpc x86_64-pc-windows-msvc",
+      "server_name": "clangd",
+      "init_seconds": 0.12,
+      "ready_seconds": 2.27,
+      "project_notes": []
+    }
+  ],
+  "summary": {
+    "files_changed": 3,
+    "entities_changed": 1,
+    "by_change": {
+      "body": 1
+    },
+    "impacted": 4,
+    "impacted_files": 3,
+    "breaking": 0,
+    "degraded": 0,
+    "truncated": false
+  },
+  "files": [
+    {
+      "path": ".gitignore",
+      "old_path": null,
+      "status": "M",
+      "language": null,
+      "server": null,
+      "added": 1,
+      "removed": 1,
+      "entities": [],
+      "module_lines": [],
+      "degraded": [
+        "language not supported"
+      ],
+      "impacted_files": []
+    },
+    {
+      "path": "compile_commands.json",
+      "old_path": null,
+      "status": "M",
+      "language": null,
+      "server": null,
+      "added": 21,
+      "removed": 21,
+      "entities": [],
+      "module_lines": [],
+      "degraded": [
+        "language not supported"
+      ],
+      "impacted_files": []
+    },
+    {
+      "path": "lib.cpp",
+      "old_path": null,
+      "status": "M",
+      "language": "cpp",
+      "server": "clangd",
+      "added": 1,
+      "removed": 1,
+      "entities": [
+        "lib.cpp#fx.Circle::area@5"
+      ],
+      "module_lines": [],
+      "degraded": [],
+      "impacted_files": [
+        {
+          "path": "app.cpp",
+          "score": 0.36
+        },
+        {
+          "path": "lib.cpp",
+          "score": 0.36
+        },
+        {
+          "path": "lib.hpp",
+          "score": 0.288
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "lib.cpp#fx.Circle::area@5",
+      "path": "lib.cpp",
+      "name": "Circle::area",
+      "qualname": "fx.Circle::area",
+      "kind": "method",
+      "lines": [
+        5,
+        7
+      ],
+      "change": "body",
+      "depth": 0,
+      "score": 0.6,
+      "via": null,
+      "parent": null,
+      "seeds": [
+        "lib.cpp#fx.Circle::area@5"
+      ],
+      "confidence": "precise",
+      "reasons": [],
+      "breaking": [],
+      "truncated": null,
+      "signature": {
+        "before": "// In Circle public: double Circle::area() const",
+        "after": "// In Circle public: double Circle::area() const"
+      },
+      "renamed_from": null,
+      "lines_changed": 2,
+      "on_base": false,
+      "notes": [],
+      "impacted": 4
+    },
+    {
+      "id": "app.cpp#app.d@21",
+      "path": "app.cpp",
+      "name": "d",
+      "qualname": "app.d",
+      "kind": "function",
+      "lines": [
+        21,
+        23
+      ],
+      "change": null,
+      "depth": 1,
+      "score": 0.36,
+      "via": "call",
+      "parent": "lib.cpp#fx.Circle::area@5",
+      "seeds": [
+        "lib.cpp#fx.Circle::area@5"
+      ],
+      "confidence": "precise",
+      "reasons": [],
+      "breaking": [],
+      "truncated": null
+    },
+    {
+      "id": "lib.cpp#fx.total@13",
+      "path": "lib.cpp",
+      "name": "total",
+      "qualname": "fx.total",
+      "kind": "function",
+      "lines": [
+        13,
+        19
+      ],
+      "change": null,
+      "depth": 1,
+      "score": 0.36,
+      "via": "call",
+      "parent": "lib.cpp#fx.Circle::area@5",
+      "seeds": [
+        "lib.cpp#fx.Circle::area@5"
+      ],
+      "confidence": "precise",
+      "reasons": [],
+      "breaking": [],
+      "truncated": null
+    },
+    {
+      "id": "lib.hpp#fx.Shape.area@10",
+      "path": "lib.hpp",
+      "name": "area",
+      "qualname": "fx.Shape.area",
+      "kind": "method",
+      "lines": [
+        10,
+        10
+      ],
+      "change": null,
+      "depth": 1,
+      "score": 0.288,
+      "via": "ref",
+      "parent": "lib.cpp#fx.Circle::area@5",
+      "seeds": [
+        "lib.cpp#fx.Circle::area@5"
+      ],
+      "confidence": "precise",
+      "reasons": [],
+      "breaking": [],
+      "truncated": null
+    },
+    {
+      "id": "app.cpp#app.e@25",
+      "path": "app.cpp",
+      "name": "e",
+      "qualname": "app.e",
+      "kind": "function",
+      "lines": [
+        25,
+        29
+      ],
+      "change": null,
+      "depth": 2,
+      "score": 0.216,
+      "via": "call",
+      "parent": "lib.cpp#fx.total@13",
+      "seeds": [
+        "lib.cpp#fx.Circle::area@5"
+      ],
+      "confidence": "precise",
+      "reasons": [],
+      "breaking": [],
+      "truncated": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "lib.cpp#fx.Circle::area@5",
+      "target": "app.cpp#app.d@21",
+      "kind": "call",
+      "sites": [
+        22
+      ]
+    },
+    {
+      "source": "lib.cpp#fx.Circle::area@5",
+      "target": "lib.cpp#fx.total@13",
+      "kind": "call",
+      "sites": [
+        16
+      ]
+    },
+    {
+      "source": "lib.cpp#fx.Circle::area@5",
+      "target": "lib.hpp#fx.Shape.area@10",
+      "kind": "ref",
+      "sites": [
+        10
+      ]
+    },
+    {
+      "source": "lib.cpp#fx.total@13",
+      "target": "app.cpp#app.e@25",
+      "kind": "call",
+      "sites": [
+        28
+      ]
+    },
+    {
+      "source": "lib.hpp#fx.Shape.area@10",
+      "target": "lib.cpp#fx.total@13",
+      "kind": "call",
+      "sites": [
+        16
+      ]
+    }
+  ],
+  "paths": {
+    "app.cpp#app.d@21": [
+      "lib.cpp#fx.Circle::area@5",
+      "app.cpp#app.d@21"
+    ],
+    "lib.cpp#fx.total@13": [
+      "lib.cpp#fx.Circle::area@5",
+      "lib.cpp#fx.total@13"
+    ],
+    "lib.hpp#fx.Shape.area@10": [
+      "lib.cpp#fx.Circle::area@5",
+      "lib.hpp#fx.Shape.area@10"
+    ],
+    "app.cpp#app.e@25": [
+      "lib.cpp#fx.Circle::area@5",
+      "lib.cpp#fx.total@13",
+      "app.cpp#app.e@25"
+    ]
+  },
+  "truncation": [],
+  "blind_spots": {
+    "cpp": [
+      "calls through function pointers and std::function",
+      "template instantiations not seen by the index",
+      "files without a compile command"
+    ]
+  },
+  "warnings": [],
+  "timing": {
+    "total_seconds": 2.91,
+    "requests": 11,
+    "request_seconds": 0.11,
+    "timeouts": 0
+  }
+}

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-CN" data-style="Porcelain">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>RippleLens · Porcelain</title>
+<link rel="stylesheet" href="shared/base.css" />
+<style>
+  /* Porcelain: cool white, soft layered shadows, generous radii, frosted toolbar */
+  :root {
+    --font-ui: "SF Pro Text", "Segoe UI Variable Text", "Segoe UI", "PingFang SC", "Microsoft YaHei UI", system-ui, sans-serif;
+    --font-display: "SF Pro Display", "Segoe UI Variable Display", "Segoe UI", "PingFang SC", "Microsoft YaHei UI", system-ui, sans-serif;
+    --font-mono: "SF Mono", "JetBrains Mono", "Cascadia Mono", Consolas, ui-monospace, monospace;
+    --bg: #eef1f6; --board-bg: transparent; --surface: #ffffff; --surface-2: #f2f4f8; --drawer-bg: rgba(255,255,255,.82);
+    --border: rgba(20,30,60,.07); --border-strong: rgba(20,30,60,.16); --row-hover: #f4f6fb;
+    --text: #141a2a; --text-2: #4f5870; --text-3: #8a93a8;
+    --changed: #ff7043; --changed-strong: #e85a2c; --on-changed: #ffffff;
+    --impact: #5b6cff; --impact-strong: #4757f0; --wire: #5b6cff;
+    --danger: #e5484d; --danger-soft: #fdecec; --danger-border: rgba(229,72,77,.35);
+    --warn: #b86e00; --warn-soft: #fff1d6; --ok: #2e9e5b; --ai: #8b5cf6; --ai-soft: #f1ebff;
+    --lang-java: #e08a3c; --lang-ts: #3b82f6;
+    --diff-del: #fff0ee; --diff-del-text: #b42318; --diff-add: #ecfbf1; --diff-add-text: #1f7a43; --code-bg: #f5f7fb;
+    --radius: 14px; --radius-sm: 10px; --tag-radius: 6px;
+    --shadow: 0 1px 2px rgba(20,30,60,.04), 0 4px 14px rgba(20,30,60,.05);
+    --shadow-lift: 0 0 0 2px rgba(255,112,67,.35), 0 14px 34px rgba(20,30,60,.12);
+    --drawer-shadow: -20px 0 50px rgba(20,30,60,.10);
+    --topbar-bg: rgba(255,255,255,.66); --topbar-blur: saturate(1.6) blur(18px);
+    --col-gap: 60px; --fade: .3;
+    --brand-weight: 650; --brand-tracking: -.02em;
+    --col-title-weight: 650; --col-title-size: 15px; --col-title-tracking: -.01em;
+    --d-title-weight: 650; --sub-transform: none; --sub-tracking: 0;
+    --switch-bg: rgba(20,26,42,.86); --switch-text: #fff; --switch-on: rgba(255,255,255,.16);
+  }
+  body { background: radial-gradient(900px 500px at 10% 0%, #fde8df 0%, transparent 60%), radial-gradient(900px 600px at 95% 10%, #e3e8ff 0%, transparent 60%), var(--bg); }
+  .topbar { margin: 10px 12px 0; border-radius: 16px; border: 1px solid rgba(255,255,255,.8); box-shadow: 0 8px 30px rgba(20,30,60,.07); }
+  .col-head { background: none; }
+  .card { border-color: rgba(255,255,255,.9); }
+  .card::before { top: 12px; bottom: 12px; left: 6px; width: 3px; }
+  .card-head { padding-left: 18px; }
+  .rows { padding-left: 12px; }
+  .card:hover { transform: translateY(-1px); box-shadow: 0 2px 4px rgba(20,30,60,.05), 0 12px 28px rgba(20,30,60,.09); }
+  .drawer { margin: 10px 12px 12px 0; border-radius: 18px; border: 1px solid rgba(255,255,255,.9); backdrop-filter: blur(20px); }
+  .search, .ref { background: rgba(255,255,255,.7); }
+  .wire { stroke-width: 1.6; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="shared/data.js"></script>
+<script src="shared/proto.js"></script>
+</body>
+</html>

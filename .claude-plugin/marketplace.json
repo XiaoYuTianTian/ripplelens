@@ -1,0 +1,19 @@
+{
+  "name": "ripplelens",
+  "owner": {
+    "name": "ripplelens contributors"
+  },
+  "metadata": {
+    "description": "ripplelens: LSP-based blast radius analysis for code review"
+  },
+  "plugins": [
+    {
+      "name": "ripplelens",
+      "source": "./",
+      "description": "Function-level blast radius of your git diff, computed by compiler-backed language servers.",
+      "version": "0.1.0",
+      "category": "code-review",
+      "tags": ["review", "lsp", "impact-analysis"]
+    }
+  ]
+}

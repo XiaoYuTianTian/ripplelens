@@ -1,0 +1,97 @@
+{
+  "lang": "c",
+  "server": "clangd",
+  "platform": "Windows-10-10.0.19045-SP0",
+  "server_info": {
+    "name": "clangd",
+    "version": "clangd version 23.1.0 (https://github.com/llvm/llvm-project ea7d852a70e8bdfaf601d6626a760f9771b2c4b4) windows+grpc x86_64-pc-windows-msvc"
+  },
+  "init_seconds": 0.81,
+  "ready": true,
+  "ready_reason": "",
+  "ready_seconds": 2.09,
+  "progress_seen": 0,
+  "capabilities": {
+    "documentSymbolProvider": true,
+    "hoverProvider": true,
+    "referencesProvider": true,
+    "implementationProvider": true,
+    "callHierarchyProvider": true,
+    "typeHierarchyProvider": true
+  },
+  "results": {
+    "helper": {
+      "entity": {
+        "qualname": "helper",
+        "kind": "function",
+        "line": 5
+      },
+      "hover": "### function `helper`\n\n---\n→ `int`\n\nParameters:\n\n- `int x`\n\n---\n```cpp\nint helper(int x)\n```",
+      "references": [
+        "a",
+        "b",
+        "c"
+      ],
+      "incoming": [
+        "a",
+        "b",
+        "c"
+      ],
+      "prepare_items": 1,
+      "implementations": []
+    },
+    "circle_area": {
+      "entity": {
+        "qualname": "circle_area",
+        "kind": "function",
+        "line": 9
+      },
+      "hover": "### function `circle_area`\n\n---\n→ `double`\n\nParameters:\n\n- `const void * self`\n\n---\n```cpp\ndouble circle_area(const void *self)\n```",
+      "references": [
+        "d",
+        "e"
+      ],
+      "incoming": [
+        "d",
+        "e"
+      ],
+      "prepare_items": 1,
+      "implementations": []
+    },
+    "limit": {
+      "entity": {
+        "qualname": "limit_value",
+        "kind": "variable",
+        "line": 3
+      },
+      "hover": "### variable `limit_value`\n\n---\nType: `const int`\n\nValue = `10 (0xa)`\n\n---\n```cpp\nconst int limit_value = LIMIT\n```",
+      "references": [
+        "helper"
+      ]
+    }
+  },
+  "checks": {
+    "helper: incomingCalls finds direct callers {a,b}": true,
+    "helper: references finds value use in c": true,
+    "helper: incomingCalls also lists c": true,
+    "Circle.area: incomingCalls finds d": true,
+    "Circle.area: incomingCalls includes interface-dispatch caller total": false,
+    "Circle.area: references include total": false,
+    "constant: references finds helper": true
+  },
+  "timings": {
+    "helper.hover": 0.0,
+    "helper.references": 0.0,
+    "helper.prepareCallHierarchy": 0.0,
+    "helper.incomingCalls": 0.0,
+    "helper.implementation": 0.0,
+    "circle_area.hover": 0.0,
+    "circle_area.references": 0.0,
+    "circle_area.prepareCallHierarchy": 0.0,
+    "circle_area.incomingCalls": 0.015,
+    "circle_area.implementation": 0.0,
+    "limit.hover": 0.0,
+    "limit.references": 0.0
+  },
+  "total_seconds": 2.16
+}

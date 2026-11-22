@@ -1,0 +1,56 @@
+[
+  {
+    "id": "go-cli",
+    "language": "go",
+    "url": "https://github.com/spf13/cobra",
+    "ref": "v1.8.1",
+    "scip": {
+      "command": ["scip-go", "--project-root", ".", "--output", "index.scip"]
+    },
+    "cases": [
+      {
+        "id": "help-func",
+        "base": "v1.8.0",
+        "head": "v1.8.1",
+        "seed_paths": ["command.go"],
+        "note": "Compare callers of Help-related symbols across a small release range"
+      }
+    ]
+  },
+  {
+    "id": "ts-zod",
+    "language": "typescript",
+    "url": "https://github.com/colinhacks/zod",
+    "ref": "v3.23.8",
+    "scip": {
+      "command": ["npx", "--yes", "@sourcegraph/scip-typescript", "index", "--output", "index.scip"]
+    },
+    "cases": [
+      {
+        "id": "parse-range",
+        "base": "v3.23.7",
+        "head": "v3.23.8",
+        "seed_paths": ["src/"],
+        "note": "Small patch release; SCIP references vs ripplelens impacted set"
+      }
+    ]
+  },
+  {
+    "id": "py-attrs",
+    "language": "python",
+    "url": "https://github.com/python-attrs/attrs",
+    "ref": "24.2.0",
+    "scip": {
+      "command": ["scip-python", "index", "--project-name", "attrs", "--output", "index.scip"]
+    },
+    "cases": [
+      {
+        "id": "attrs-patch",
+        "base": "24.1.0",
+        "head": "24.2.0",
+        "seed_paths": ["src/attr/"],
+        "note": "Requires scip-python on PATH; skipped in CI when missing"
+      }
+    ]
+  }
+]

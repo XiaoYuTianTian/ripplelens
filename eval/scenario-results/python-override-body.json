@@ -1,0 +1,247 @@
+{
+  "schema": "ripplelens/impact@1",
+  "tool": {
+    "name": "ripplelens",
+    "version": "0.1.0"
+  },
+  "generated_at": "2026-11-21T15:21:28+00:00",
+  "repo": {
+    "root": "C:\\Users\\jiangxiaoyu\\AppData\\Local\\Temp\\ripplelens-scenarios\\python-override-body",
+    "analyzed_root": "C:\\Users\\jiangxiaoyu\\AppData\\Local\\Temp\\ripplelens-scenarios\\python-override-body",
+    "base": {
+      "ref": "HEAD",
+      "sha": "9b09178ff8df33fabbcd6ba1c76956347087cb61"
+    },
+    "head": {
+      "ref": "working tree",
+      "sha": null
+    }
+  },
+  "options": {
+    "max_depth": 3,
+    "body_depth": 2,
+    "max_nodes": 400,
+    "min_score": 0.05,
+    "hub_threshold": 25,
+    "hub_keep": 8,
+    "request_timeout": 60.0,
+    "value_refs": true,
+    "dispatch": true,
+    "diagnostics": true,
+    "base_server": true
+  },
+  "servers": [
+    {
+      "name": "pyright",
+      "language": "python",
+      "files": 1,
+      "status": "ok",
+      "reason": null,
+      "version": "1.40.2",
+      "server_name": "basedpyright",
+      "init_seconds": 0.36,
+      "ready_seconds": 1.36,
+      "project_notes": []
+    }
+  ],
+  "summary": {
+    "files_changed": 1,
+    "entities_changed": 1,
+    "by_change": {
+      "body": 1
+    },
+    "impacted": 3,
+    "impacted_files": 2,
+    "breaking": 0,
+    "degraded": 0,
+    "truncated": false
+  },
+  "files": [
+    {
+      "path": "fx/lib.py",
+      "old_path": null,
+      "status": "M",
+      "language": "python",
+      "server": "pyright",
+      "added": 1,
+      "removed": 1,
+      "entities": [
+        "fx/lib.py#Circle.area@15"
+      ],
+      "module_lines": [],
+      "degraded": [],
+      "impacted_files": [
+        {
+          "path": "fx/app.py",
+          "score": 0.36
+        },
+        {
+          "path": "fx/lib.py",
+          "score": 0.252
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "fx/lib.py#Circle.area@15",
+      "path": "fx/lib.py",
+      "name": "area",
+      "qualname": "Circle.area",
+      "kind": "method",
+      "lines": [
+        15,
+        16
+      ],
+      "change": "body",
+      "depth": 0,
+      "score": 0.6,
+      "via": null,
+      "parent": null,
+      "seeds": [
+        "fx/lib.py#Circle.area@15"
+      ],
+      "confidence": "precise",
+      "reasons": [],
+      "breaking": [],
+      "truncated": null,
+      "signature": {
+        "before": "(method) def area(self: Self@Circle) -> float",
+        "after": "(method) def area(self: Self@Circle) -> float"
+      },
+      "renamed_from": null,
+      "lines_changed": 2,
+      "on_base": false,
+      "notes": [],
+      "impacted": 3
+    },
+    {
+      "id": "fx/app.py#d@22",
+      "path": "fx/app.py",
+      "name": "d",
+      "qualname": "d",
+      "kind": "function",
+      "lines": [
+        22,
+        23
+      ],
+      "change": null,
+      "depth": 1,
+      "score": 0.36,
+      "via": "call",
+      "parent": "fx/lib.py#Circle.area@15",
+      "seeds": [
+        "fx/lib.py#Circle.area@15"
+      ],
+      "confidence": "precise",
+      "reasons": [],
+      "breaking": [],
+      "truncated": null
+    },
+    {
+      "id": "fx/lib.py#total@23",
+      "path": "fx/lib.py",
+      "name": "total",
+      "qualname": "total",
+      "kind": "function",
+      "lines": [
+        23,
+        27
+      ],
+      "change": null,
+      "depth": 1,
+      "score": 0.252,
+      "via": "dispatch",
+      "parent": "fx/lib.py#Circle.area@15",
+      "seeds": [
+        "fx/lib.py#Circle.area@15"
+      ],
+      "confidence": "possible",
+      "reasons": [
+        "reached through dynamic dispatch; may not call the changed override"
+      ],
+      "breaking": [],
+      "truncated": null
+    },
+    {
+      "id": "fx/app.py#e@26",
+      "path": "fx/app.py",
+      "name": "e",
+      "qualname": "e",
+      "kind": "function",
+      "lines": [
+        26,
+        27
+      ],
+      "change": null,
+      "depth": 2,
+      "score": 0.1512,
+      "via": "call",
+      "parent": "fx/lib.py#total@23",
+      "seeds": [
+        "fx/lib.py#Circle.area@15"
+      ],
+      "confidence": "precise",
+      "reasons": [],
+      "breaking": [],
+      "truncated": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "fx/lib.py#Circle.area@15",
+      "target": "fx/app.py#d@22",
+      "kind": "call",
+      "sites": [
+        23
+      ]
+    },
+    {
+      "source": "fx/lib.py#Circle.area@15",
+      "target": "fx/lib.py#total@23",
+      "kind": "dispatch",
+      "sites": [
+        26
+      ]
+    },
+    {
+      "source": "fx/lib.py#total@23",
+      "target": "fx/app.py#e@26",
+      "kind": "call",
+      "sites": [
+        27
+      ]
+    }
+  ],
+  "paths": {
+    "fx/app.py#d@22": [
+      "fx/lib.py#Circle.area@15",
+      "fx/app.py#d@22"
+    ],
+    "fx/lib.py#total@23": [
+      "fx/lib.py#Circle.area@15",
+      "fx/lib.py#total@23"
+    ],
+    "fx/app.py#e@26": [
+      "fx/lib.py#Circle.area@15",
+      "fx/lib.py#total@23",
+      "fx/app.py#e@26"
+    ]
+  },
+  "truncation": [],
+  "blind_spots": {
+    "python": [
+      "getattr/setattr and other dynamic attribute access",
+      "untyped code where the receiver type is unknown",
+      "decorator or metaclass indirection",
+      "monkey patching"
+    ]
+  },
+  "warnings": [],
+  "timing": {
+    "total_seconds": 2.92,
+    "requests": 15,
+    "request_seconds": 0.19,
+    "timeouts": 0
+  }
+}

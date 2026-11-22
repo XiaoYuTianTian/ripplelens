@@ -1,0 +1,271 @@
+{
+  "schema": "ripplelens/impact@1",
+  "tool": {
+    "name": "ripplelens",
+    "version": "0.1.0"
+  },
+  "generated_at": "2026-11-21T15:23:20+00:00",
+  "repo": {
+    "root": "C:\\Users\\jiangxiaoyu\\AppData\\Local\\Temp\\ripplelens-scenarios\\go-removed",
+    "analyzed_root": "C:\\Users\\jiangxiaoyu\\AppData\\Local\\Temp\\ripplelens-scenarios\\go-removed",
+    "base": {
+      "ref": "HEAD",
+      "sha": "992fdd65a224dafdbc2269f74d62a5cd75aceb00"
+    },
+    "head": {
+      "ref": "working tree",
+      "sha": null
+    }
+  },
+  "options": {
+    "max_depth": 3,
+    "body_depth": 2,
+    "max_nodes": 400,
+    "min_score": 0.05,
+    "hub_threshold": 25,
+    "hub_keep": 8,
+    "request_timeout": 60.0,
+    "value_refs": true,
+    "dispatch": true,
+    "diagnostics": true,
+    "base_server": true
+  },
+  "servers": [
+    {
+      "name": "gopls",
+      "language": "go",
+      "files": 1,
+      "status": "ok",
+      "reason": null,
+      "version": "v0.24.0",
+      "server_name": "gopls",
+      "init_seconds": 0.09,
+      "ready_seconds": 1.48,
+      "project_notes": []
+    }
+  ],
+  "summary": {
+    "files_changed": 1,
+    "entities_changed": 1,
+    "by_change": {
+      "removed": 1
+    },
+    "impacted": 3,
+    "impacted_files": 1,
+    "breaking": 3,
+    "degraded": 0,
+    "truncated": false
+  },
+  "files": [
+    {
+      "path": "lib/lib.go",
+      "old_path": null,
+      "status": "M",
+      "language": "go",
+      "server": "gopls",
+      "added": 0,
+      "removed": 3,
+      "entities": [
+        "lib/lib.go#Helper@17"
+      ],
+      "module_lines": [],
+      "degraded": [],
+      "impacted_files": [
+        {
+          "path": "app/app.go",
+          "score": 0.6
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "lib/lib.go#Helper@17",
+      "path": "lib/lib.go",
+      "name": "Helper",
+      "qualname": "Helper",
+      "kind": "function",
+      "lines": [
+        17,
+        19
+      ],
+      "change": "removed",
+      "depth": 0,
+      "score": 1.0,
+      "via": null,
+      "parent": null,
+      "seeds": [
+        "lib/lib.go#Helper@17"
+      ],
+      "confidence": "precise",
+      "reasons": [],
+      "breaking": [],
+      "truncated": null,
+      "signature": {
+        "before": "func Helper(x int) int",
+        "after": null
+      },
+      "renamed_from": null,
+      "lines_changed": 3,
+      "on_base": true,
+      "notes": [],
+      "impacted": 3
+    },
+    {
+      "id": "app/app.go#A@5",
+      "path": "app/app.go",
+      "name": "A",
+      "qualname": "A",
+      "kind": "function",
+      "lines": [
+        5,
+        7
+      ],
+      "change": null,
+      "depth": 1,
+      "score": 0.6,
+      "via": "call",
+      "parent": "lib/lib.go#Helper@17",
+      "seeds": [
+        "lib/lib.go#Helper@17"
+      ],
+      "confidence": "precise",
+      "reasons": [
+        "caller found on the base revision"
+      ],
+      "breaking": [
+        {
+          "line": 6,
+          "message": "undefined: lib.Helper",
+          "source": "compiler"
+        }
+      ],
+      "truncated": null
+    },
+    {
+      "id": "app/app.go#B@9",
+      "path": "app/app.go",
+      "name": "B",
+      "qualname": "B",
+      "kind": "function",
+      "lines": [
+        9,
+        11
+      ],
+      "change": null,
+      "depth": 1,
+      "score": 0.6,
+      "via": "call",
+      "parent": "lib/lib.go#Helper@17",
+      "seeds": [
+        "lib/lib.go#Helper@17"
+      ],
+      "confidence": "precise",
+      "reasons": [
+        "caller found on the base revision"
+      ],
+      "breaking": [
+        {
+          "line": 10,
+          "message": "undefined: lib.Helper",
+          "source": "compiler"
+        }
+      ],
+      "truncated": null
+    },
+    {
+      "id": "app/app.go#C@17",
+      "path": "app/app.go",
+      "name": "C",
+      "qualname": "C",
+      "kind": "function",
+      "lines": [
+        17,
+        19
+      ],
+      "change": null,
+      "depth": 1,
+      "score": 0.6,
+      "via": "call",
+      "parent": "lib/lib.go#Helper@17",
+      "seeds": [
+        "lib/lib.go#Helper@17"
+      ],
+      "confidence": "precise",
+      "reasons": [
+        "caller found on the base revision"
+      ],
+      "breaking": [
+        {
+          "line": 18,
+          "message": "undefined: lib.Helper",
+          "source": "compiler"
+        }
+      ],
+      "truncated": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "lib/lib.go#Helper@17",
+      "target": "app/app.go#A@5",
+      "kind": "call",
+      "sites": [
+        6
+      ]
+    },
+    {
+      "source": "lib/lib.go#Helper@17",
+      "target": "app/app.go#B@9",
+      "kind": "call",
+      "sites": [
+        10
+      ]
+    },
+    {
+      "source": "lib/lib.go#Helper@17",
+      "target": "app/app.go#C@17",
+      "kind": "call",
+      "sites": [
+        18
+      ]
+    },
+    {
+      "source": "app/app.go#A@5",
+      "target": "app/app.go#B@9",
+      "kind": "call",
+      "sites": [
+        10
+      ]
+    }
+  ],
+  "paths": {
+    "app/app.go#A@5": [
+      "lib/lib.go#Helper@17",
+      "app/app.go#A@5"
+    ],
+    "app/app.go#B@9": [
+      "lib/lib.go#Helper@17",
+      "app/app.go#B@9"
+    ],
+    "app/app.go#C@17": [
+      "lib/lib.go#Helper@17",
+      "app/app.go#C@17"
+    ]
+  },
+  "truncation": [],
+  "blind_spots": {
+    "go": [
+      "calls through reflect",
+      "functions stored in maps/struct fields and invoked later",
+      "cgo and go:linkname"
+    ]
+  },
+  "warnings": [],
+  "timing": {
+    "total_seconds": 3.75,
+    "requests": 11,
+    "request_seconds": 0.02,
+    "timeouts": 0
+  }
+}

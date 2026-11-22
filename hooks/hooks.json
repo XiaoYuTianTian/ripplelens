@@ -1,0 +1,17 @@
+{
+  "description": "Mark the ripplelens analysis stale after the agent edits files, so the next query re-analyzes with warm language servers.",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uvx ripplelens hook post-edit",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

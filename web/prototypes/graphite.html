@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN" data-style="Graphite">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>RippleLens · Graphite</title>
+<link rel="stylesheet" href="shared/base.css" />
+<style>
+  /* Graphite: near-black neutrals, 1px borders, restrained highlights */
+  :root {
+    --font-ui: "Inter", "Segoe UI Variable Text", "Segoe UI", "PingFang SC", "Microsoft YaHei UI", system-ui, sans-serif;
+    --font-display: "Inter", "Segoe UI Variable Display", "Segoe UI", "PingFang SC", "Microsoft YaHei UI", system-ui, sans-serif;
+    --font-mono: "Geist Mono", "JetBrains Mono", "Cascadia Mono", Consolas, ui-monospace, monospace;
+    --bg: #0a0a0b; --board-bg: #0a0a0b; --surface: #121214; --surface-2: #1a1a1d; --drawer-bg: #0e0e10;
+    --border: #232327; --border-strong: #34343a; --row-hover: #1a1a1e;
+    --text: #ededef; --text-2: #a1a1aa; --text-3: #6b6b74;
+    --changed: #f0a43a; --changed-strong: #f5b454; --on-changed: #1a1206;
+    --impact: #7d8bff; --impact-strong: #98a3ff; --wire: #7d8bff;
+    --danger: #ff5f56; --danger-soft: rgba(255,95,86,.14); --danger-border: rgba(255,95,86,.45);
+    --warn: #f5c451; --warn-soft: rgba(245,196,81,.14); --ok: #4ade80; --ai: #c4a7ff; --ai-soft: rgba(196,167,255,.14);
+    --lang-java: #d08a4e; --lang-ts: #4f8fe6;
+    --diff-del: rgba(255,95,86,.10); --diff-del-text: #ff9c95; --diff-add: rgba(74,222,128,.10); --diff-add-text: #86efac; --code-bg: #0b0b0d;
+    --radius: 8px; --radius-sm: 6px; --tag-radius: 4px;
+    --shadow: none; --shadow-lift: 0 0 0 1px rgba(240,164,58,.5), 0 8px 24px rgba(0,0,0,.5); --drawer-shadow: -24px 0 48px rgba(0,0,0,.4);
+    --topbar-bg: rgba(10,10,11,.85); --topbar-blur: blur(12px);
+    --col-gap: 64px; --fade: .22;
+    --brand-weight: 600; --brand-tracking: -.02em;
+    --col-title-weight: 600; --col-title-size: 13px; --col-title-tracking: -.01em;
+    --d-title-weight: 600; --sub-transform: uppercase; --sub-tracking: .06em;
+    --switch-bg: #ededef; --switch-text: #0a0a0b; --switch-on: rgba(0,0,0,.09);
+  }
+  body { background: radial-gradient(1200px 600px at 20% -10%, rgba(125,139,255,.06), transparent 60%), var(--bg); }
+  .board { background: transparent; background-image: radial-gradient(rgba(255,255,255,.045) 1px, transparent 1px); background-size: 20px 20px; }
+  .col-head { background: linear-gradient(#0a0a0b 70%, transparent); }
+  .card:hover { border-color: var(--border-strong); }
+  .tag-contract { box-shadow: 0 0 12px rgba(240,164,58,.25); }
+  .wire { filter: drop-shadow(0 0 3px rgba(125,139,255,.55)); }
+  .wire.wire-error { filter: drop-shadow(0 0 3px rgba(255,95,86,.6)); }
+  .btn-primary { background: #ededef; color: #0a0a0b; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="shared/data.js"></script>
+<script src="shared/proto.js"></script>
+</body>
+</html>

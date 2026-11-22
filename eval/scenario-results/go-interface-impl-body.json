@@ -1,0 +1,260 @@
+{
+  "schema": "ripplelens/impact@1",
+  "tool": {
+    "name": "ripplelens",
+    "version": "0.1.0"
+  },
+  "generated_at": "2026-11-21T15:21:50+00:00",
+  "repo": {
+    "root": "C:\\Users\\jiangxiaoyu\\AppData\\Local\\Temp\\ripplelens-scenarios\\go-interface-impl-body",
+    "analyzed_root": "C:\\Users\\jiangxiaoyu\\AppData\\Local\\Temp\\ripplelens-scenarios\\go-interface-impl-body",
+    "base": {
+      "ref": "HEAD",
+      "sha": "814b6c4a773beaad060d119840c2fb081caa8a44"
+    },
+    "head": {
+      "ref": "working tree",
+      "sha": null
+    }
+  },
+  "options": {
+    "max_depth": 3,
+    "body_depth": 2,
+    "max_nodes": 400,
+    "min_score": 0.05,
+    "hub_threshold": 25,
+    "hub_keep": 8,
+    "request_timeout": 60.0,
+    "value_refs": true,
+    "dispatch": true,
+    "diagnostics": true,
+    "base_server": true
+  },
+  "servers": [
+    {
+      "name": "gopls",
+      "language": "go",
+      "files": 1,
+      "status": "ok",
+      "reason": null,
+      "version": "v0.24.0",
+      "server_name": "gopls",
+      "init_seconds": 0.14,
+      "ready_seconds": 1.48,
+      "project_notes": []
+    }
+  ],
+  "summary": {
+    "files_changed": 1,
+    "entities_changed": 1,
+    "by_change": {
+      "body": 1
+    },
+    "impacted": 3,
+    "impacted_files": 2,
+    "breaking": 0,
+    "degraded": 0,
+    "truncated": false
+  },
+  "files": [
+    {
+      "path": "lib/lib.go",
+      "old_path": null,
+      "status": "M",
+      "language": "go",
+      "server": "gopls",
+      "added": 1,
+      "removed": 1,
+      "entities": [
+        "lib/lib.go#Circle.Area@13"
+      ],
+      "module_lines": [],
+      "degraded": [],
+      "impacted_files": [
+        {
+          "path": "app/app.go",
+          "score": 0.36
+        },
+        {
+          "path": "lib/lib.go",
+          "score": 0.36
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "lib/lib.go#Circle.Area@13",
+      "path": "lib/lib.go",
+      "name": "Area",
+      "qualname": "Circle.Area",
+      "kind": "method",
+      "lines": [
+        13,
+        15
+      ],
+      "change": "body",
+      "depth": 0,
+      "score": 0.6,
+      "via": null,
+      "parent": null,
+      "seeds": [
+        "lib/lib.go#Circle.Area@13"
+      ],
+      "confidence": "precise",
+      "reasons": [],
+      "breaking": [],
+      "truncated": null,
+      "signature": {
+        "before": "func (c Circle) Area() float64",
+        "after": "func (c Circle) Area() float64"
+      },
+      "renamed_from": null,
+      "lines_changed": 2,
+      "on_base": false,
+      "notes": [],
+      "impacted": 3
+    },
+    {
+      "id": "app/app.go#D@21",
+      "path": "app/app.go",
+      "name": "D",
+      "qualname": "D",
+      "kind": "function",
+      "lines": [
+        21,
+        23
+      ],
+      "change": null,
+      "depth": 1,
+      "score": 0.36,
+      "via": "call",
+      "parent": "lib/lib.go#Circle.Area@13",
+      "seeds": [
+        "lib/lib.go#Circle.Area@13"
+      ],
+      "confidence": "precise",
+      "reasons": [],
+      "breaking": [],
+      "truncated": null
+    },
+    {
+      "id": "lib/lib.go#Total@21",
+      "path": "lib/lib.go",
+      "name": "Total",
+      "qualname": "Total",
+      "kind": "function",
+      "lines": [
+        21,
+        27
+      ],
+      "change": null,
+      "depth": 1,
+      "score": 0.36,
+      "via": "call",
+      "parent": "lib/lib.go#Circle.Area@13",
+      "seeds": [
+        "lib/lib.go#Circle.Area@13"
+      ],
+      "confidence": "precise",
+      "reasons": [],
+      "breaking": [],
+      "truncated": null
+    },
+    {
+      "id": "app/app.go#E@25",
+      "path": "app/app.go",
+      "name": "E",
+      "qualname": "E",
+      "kind": "function",
+      "lines": [
+        25,
+        27
+      ],
+      "change": null,
+      "depth": 2,
+      "score": 0.216,
+      "via": "call",
+      "parent": "lib/lib.go#Total@21",
+      "seeds": [
+        "lib/lib.go#Circle.Area@13"
+      ],
+      "confidence": "precise",
+      "reasons": [],
+      "breaking": [],
+      "truncated": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "lib/lib.go#Circle.Area@13",
+      "target": "app/app.go#D@21",
+      "kind": "call",
+      "sites": [
+        22
+      ]
+    },
+    {
+      "source": "lib/lib.go#Circle.Area@13",
+      "target": "lib/lib.go#Total@21",
+      "kind": "call",
+      "sites": [
+        24
+      ]
+    },
+    {
+      "source": "lib/lib.go#Circle.Area@13",
+      "target": "app/app.go#D@21",
+      "kind": "dispatch",
+      "sites": [
+        22
+      ]
+    },
+    {
+      "source": "lib/lib.go#Circle.Area@13",
+      "target": "lib/lib.go#Total@21",
+      "kind": "dispatch",
+      "sites": [
+        24
+      ]
+    },
+    {
+      "source": "lib/lib.go#Total@21",
+      "target": "app/app.go#E@25",
+      "kind": "call",
+      "sites": [
+        26
+      ]
+    }
+  ],
+  "paths": {
+    "app/app.go#D@21": [
+      "lib/lib.go#Circle.Area@13",
+      "app/app.go#D@21"
+    ],
+    "lib/lib.go#Total@21": [
+      "lib/lib.go#Circle.Area@13",
+      "lib/lib.go#Total@21"
+    ],
+    "app/app.go#E@25": [
+      "lib/lib.go#Circle.Area@13",
+      "lib/lib.go#Total@21",
+      "app/app.go#E@25"
+    ]
+  },
+  "truncation": [],
+  "blind_spots": {
+    "go": [
+      "calls through reflect",
+      "functions stored in maps/struct fields and invoked later",
+      "cgo and go:linkname"
+    ]
+  },
+  "warnings": [],
+  "timing": {
+    "total_seconds": 2.0,
+    "requests": 10,
+    "request_seconds": 0.02,
+    "timeouts": 0
+  }
+}

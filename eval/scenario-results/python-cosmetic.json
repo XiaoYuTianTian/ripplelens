@@ -1,0 +1,128 @@
+{
+  "schema": "ripplelens/impact@1",
+  "tool": {
+    "name": "ripplelens",
+    "version": "0.1.0"
+  },
+  "generated_at": "2026-11-21T15:21:40+00:00",
+  "repo": {
+    "root": "C:\\Users\\jiangxiaoyu\\AppData\\Local\\Temp\\ripplelens-scenarios\\python-cosmetic",
+    "analyzed_root": "C:\\Users\\jiangxiaoyu\\AppData\\Local\\Temp\\ripplelens-scenarios\\python-cosmetic",
+    "base": {
+      "ref": "HEAD",
+      "sha": "3723906335dcb3c9cf75f2caa422afba0e415dd7"
+    },
+    "head": {
+      "ref": "working tree",
+      "sha": null
+    }
+  },
+  "options": {
+    "max_depth": 3,
+    "body_depth": 2,
+    "max_nodes": 400,
+    "min_score": 0.05,
+    "hub_threshold": 25,
+    "hub_keep": 8,
+    "request_timeout": 60.0,
+    "value_refs": true,
+    "dispatch": true,
+    "diagnostics": true,
+    "base_server": true
+  },
+  "servers": [
+    {
+      "name": "pyright",
+      "language": "python",
+      "files": 1,
+      "status": "ok",
+      "reason": null,
+      "version": "1.40.2",
+      "server_name": "basedpyright",
+      "init_seconds": 0.39,
+      "ready_seconds": 1.36,
+      "project_notes": []
+    }
+  ],
+  "summary": {
+    "files_changed": 1,
+    "entities_changed": 1,
+    "by_change": {
+      "cosmetic": 1
+    },
+    "impacted": 0,
+    "impacted_files": 0,
+    "breaking": 0,
+    "degraded": 0,
+    "truncated": false
+  },
+  "files": [
+    {
+      "path": "fx/lib.py",
+      "old_path": null,
+      "status": "M",
+      "language": "python",
+      "server": "pyright",
+      "added": 1,
+      "removed": 1,
+      "entities": [
+        "fx/lib.py#helper@19"
+      ],
+      "module_lines": [],
+      "degraded": [],
+      "impacted_files": []
+    }
+  ],
+  "nodes": [
+    {
+      "id": "fx/lib.py#helper@19",
+      "path": "fx/lib.py",
+      "name": "helper",
+      "qualname": "helper",
+      "kind": "function",
+      "lines": [
+        19,
+        20
+      ],
+      "change": "cosmetic",
+      "depth": 0,
+      "score": 0.0,
+      "via": null,
+      "parent": null,
+      "seeds": [
+        "fx/lib.py#helper@19"
+      ],
+      "confidence": "precise",
+      "reasons": [],
+      "breaking": [],
+      "truncated": null,
+      "signature": {
+        "before": null,
+        "after": null
+      },
+      "renamed_from": null,
+      "lines_changed": 2,
+      "on_base": false,
+      "notes": [],
+      "impacted": 0
+    }
+  ],
+  "edges": [],
+  "paths": {},
+  "truncation": [],
+  "blind_spots": {
+    "python": [
+      "getattr/setattr and other dynamic attribute access",
+      "untyped code where the receiver type is unknown",
+      "decorator or metaclass indirection",
+      "monkey patching"
+    ]
+  },
+  "warnings": [],
+  "timing": {
+    "total_seconds": 2.09,
+    "requests": 0,
+    "request_seconds": 0.0,
+    "timeouts": 0
+  }
+}

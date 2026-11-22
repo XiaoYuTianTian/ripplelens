@@ -1,0 +1,123 @@
+{
+  "lang": "cpp",
+  "server": "clangd",
+  "platform": "Windows-10-10.0.19045-SP0",
+  "server_info": {
+    "name": "clangd",
+    "version": "clangd version 23.1.0 (https://github.com/llvm/llvm-project ea7d852a70e8bdfaf601d6626a760f9771b2c4b4) windows+grpc x86_64-pc-windows-msvc"
+  },
+  "init_seconds": 0.17,
+  "ready": true,
+  "ready_reason": "",
+  "ready_seconds": 2.16,
+  "progress_seen": 0,
+  "capabilities": {
+    "documentSymbolProvider": true,
+    "hoverProvider": true,
+    "referencesProvider": true,
+    "implementationProvider": true,
+    "callHierarchyProvider": true,
+    "typeHierarchyProvider": true
+  },
+  "results": {
+    "helper": {
+      "entity": {
+        "qualname": "fx.helper",
+        "kind": "function",
+        "line": 9
+      },
+      "hover": "### function `helper`\n\n---\n→ `int`\n\nParameters:\n\n- `int x`\n\n---\n```cpp\n// In namespace fx\nint helper(int x)\n```",
+      "references": [
+        "app.a",
+        "app.b",
+        "app.c"
+      ],
+      "incoming": [
+        "app.a",
+        "app.b",
+        "app.c"
+      ],
+      "prepare_items": 1,
+      "implementations": []
+    },
+    "circle_area": {
+      "entity": {
+        "qualname": "fx.Circle::area",
+        "kind": "method",
+        "line": 5
+      },
+      "hover": "### instance-method `Circle::area`\n\n---\n→ `double`\n\n---\n```cpp\n// In Circle\npublic: double Circle::area() const\n```",
+      "references": [
+        "app.d",
+        "fx.Shape.area",
+        "fx.total"
+      ],
+      "incoming": [
+        "app.d",
+        "fx.total"
+      ],
+      "prepare_items": 1,
+      "implementations": []
+    },
+    "shape_area": {
+      "entity": {
+        "qualname": "fx.Shape.area",
+        "kind": "method",
+        "line": 10
+      },
+      "hover": "### instance-method `area`\n\n---\n→ `double`\n\n---\n```cpp\n// In Shape\npublic: virtual double area() const = 0\n```",
+      "references": [
+        "fx.total"
+      ],
+      "incoming": [
+        "fx.total"
+      ],
+      "prepare_items": 1,
+      "implementations": [
+        "fx.Circle::area"
+      ]
+    },
+    "limit": {
+      "entity": {
+        "qualname": "fx.kLimit",
+        "kind": "variable",
+        "line": 5
+      },
+      "hover": "### variable `kLimit`\n\n---\nType: `const int`\n\nValue = `10 (0xa)`\n\n---\n```cpp\n// In namespace fx\nconstexpr int kLimit = 10\n```",
+      "references": [
+        "fx.helper"
+      ]
+    }
+  },
+  "checks": {
+    "helper: incomingCalls finds direct callers {a,b}": true,
+    "helper: references finds value use in c": true,
+    "helper: incomingCalls also lists c": true,
+    "Circle.area: incomingCalls finds d": true,
+    "Circle.area: incomingCalls includes interface-dispatch caller total": true,
+    "Circle.area: references include total": true,
+    "Shape.area: incomingCalls finds total": true,
+    "Shape.area: implementation finds Circle.area": true,
+    "constant: references finds helper": true
+  },
+  "timings": {
+    "helper.hover": 0.0,
+    "helper.references": 0.0,
+    "helper.prepareCallHierarchy": 0.016,
+    "helper.incomingCalls": 0.0,
+    "helper.implementation": 0.0,
+    "circle_area.hover": 0.0,
+    "circle_area.references": 0.0,
+    "circle_area.prepareCallHierarchy": 0.0,
+    "circle_area.incomingCalls": 0.016,
+    "circle_area.implementation": 0.0,
+    "shape_area.hover": 0.0,
+    "shape_area.references": 0.0,
+    "shape_area.prepareCallHierarchy": 0.0,
+    "shape_area.incomingCalls": 0.0,
+    "shape_area.implementation": 0.0,
+    "limit.hover": 0.015,
+    "limit.references": 0.0
+  },
+  "total_seconds": 2.25
+}

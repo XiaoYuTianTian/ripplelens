@@ -1,0 +1,265 @@
+{
+  "schema": "ripplelens/impact@1",
+  "tool": {
+    "name": "ripplelens",
+    "version": "0.1.0"
+  },
+  "generated_at": "2026-11-21T15:21:30+00:00",
+  "repo": {
+    "root": "C:\\Users\\jiangxiaoyu\\AppData\\Local\\Temp\\ripplelens-scenarios\\ts-signature",
+    "analyzed_root": "C:\\Users\\jiangxiaoyu\\AppData\\Local\\Temp\\ripplelens-scenarios\\ts-signature",
+    "base": {
+      "ref": "HEAD",
+      "sha": "e0640eba2670382193484b43831f520901a887c7"
+    },
+    "head": {
+      "ref": "working tree",
+      "sha": null
+    }
+  },
+  "options": {
+    "max_depth": 3,
+    "body_depth": 2,
+    "max_nodes": 400,
+    "min_score": 0.05,
+    "hub_threshold": 25,
+    "hub_keep": 8,
+    "request_timeout": 60.0,
+    "value_refs": true,
+    "dispatch": true,
+    "diagnostics": true,
+    "base_server": true
+  },
+  "servers": [
+    {
+      "name": "typescript",
+      "language": "typescript",
+      "files": 1,
+      "status": "ok",
+      "reason": null,
+      "version": "7.0.2",
+      "server_name": "typescript-go",
+      "init_seconds": 0.23,
+      "ready_seconds": 0.94,
+      "project_notes": []
+    }
+  ],
+  "summary": {
+    "files_changed": 1,
+    "entities_changed": 1,
+    "by_change": {
+      "signature": 1
+    },
+    "impacted": 3,
+    "impacted_files": 1,
+    "breaking": 3,
+    "degraded": 0,
+    "truncated": false
+  },
+  "files": [
+    {
+      "path": "src/lib.ts",
+      "old_path": null,
+      "status": "M",
+      "language": "typescript",
+      "server": "typescript",
+      "added": 2,
+      "removed": 2,
+      "entities": [
+        "src/lib.ts#helper@15"
+      ],
+      "module_lines": [],
+      "degraded": [],
+      "impacted_files": [
+        {
+          "path": "src/app.ts",
+          "score": 0.6
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "src/lib.ts#helper@15",
+      "path": "src/lib.ts",
+      "name": "helper",
+      "qualname": "helper",
+      "kind": "function",
+      "lines": [
+        15,
+        17
+      ],
+      "change": "signature",
+      "depth": 0,
+      "score": 1.0,
+      "via": null,
+      "parent": null,
+      "seeds": [
+        "src/lib.ts#helper@15"
+      ],
+      "confidence": "precise",
+      "reasons": [],
+      "breaking": [],
+      "truncated": null,
+      "signature": {
+        "before": "function helper(x: number): number",
+        "after": "function helper(x: number, y: number): number"
+      },
+      "renamed_from": null,
+      "lines_changed": 4,
+      "on_base": false,
+      "notes": [],
+      "impacted": 3
+    },
+    {
+      "id": "src/app.ts#a@3",
+      "path": "src/app.ts",
+      "name": "a",
+      "qualname": "a",
+      "kind": "function",
+      "lines": [
+        3,
+        5
+      ],
+      "change": null,
+      "depth": 1,
+      "score": 0.6,
+      "via": "call",
+      "parent": "src/lib.ts#helper@15",
+      "seeds": [
+        "src/lib.ts#helper@15"
+      ],
+      "confidence": "precise",
+      "reasons": [],
+      "breaking": [
+        {
+          "line": 4,
+          "message": "Expected 2 arguments, but got 1.",
+          "source": "ts"
+        }
+      ],
+      "truncated": null
+    },
+    {
+      "id": "src/app.ts#b@7",
+      "path": "src/app.ts",
+      "name": "b",
+      "qualname": "b",
+      "kind": "function",
+      "lines": [
+        7,
+        9
+      ],
+      "change": null,
+      "depth": 1,
+      "score": 0.6,
+      "via": "call",
+      "parent": "src/lib.ts#helper@15",
+      "seeds": [
+        "src/lib.ts#helper@15"
+      ],
+      "confidence": "precise",
+      "reasons": [],
+      "breaking": [
+        {
+          "line": 8,
+          "message": "Expected 2 arguments, but got 1.",
+          "source": "ts"
+        }
+      ],
+      "truncated": null
+    },
+    {
+      "id": "src/app.ts#c@15",
+      "path": "src/app.ts",
+      "name": "c",
+      "qualname": "c",
+      "kind": "function",
+      "lines": [
+        15,
+        17
+      ],
+      "change": null,
+      "depth": 1,
+      "score": 0.48,
+      "via": "ref",
+      "parent": "src/lib.ts#helper@15",
+      "seeds": [
+        "src/lib.ts#helper@15"
+      ],
+      "confidence": "precise",
+      "reasons": [],
+      "breaking": [
+        {
+          "line": 16,
+          "message": "Argument of type '(x: number, y: number) => number' is not assignable to parameter of type '(x: number) => number'.\n  Target signature provides too few arguments. Expected 2 or more, but got 1.",
+          "source": "ts"
+        }
+      ],
+      "truncated": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "src/lib.ts#helper@15",
+      "target": "src/app.ts#a@3",
+      "kind": "call",
+      "sites": [
+        4
+      ]
+    },
+    {
+      "source": "src/lib.ts#helper@15",
+      "target": "src/app.ts#b@7",
+      "kind": "call",
+      "sites": [
+        8
+      ]
+    },
+    {
+      "source": "src/lib.ts#helper@15",
+      "target": "src/app.ts#c@15",
+      "kind": "ref",
+      "sites": [
+        16
+      ]
+    },
+    {
+      "source": "src/app.ts#a@3",
+      "target": "src/app.ts#b@7",
+      "kind": "call",
+      "sites": [
+        8
+      ]
+    }
+  ],
+  "paths": {
+    "src/app.ts#a@3": [
+      "src/lib.ts#helper@15",
+      "src/app.ts#a@3"
+    ],
+    "src/app.ts#b@7": [
+      "src/lib.ts#helper@15",
+      "src/app.ts#b@7"
+    ],
+    "src/app.ts#c@15": [
+      "src/lib.ts#helper@15",
+      "src/app.ts#c@15"
+    ]
+  },
+  "truncation": [],
+  "blind_spots": {
+    "typescript": [
+      "calls through values typed `any`/`unknown`",
+      "string-keyed dynamic property access",
+      "dynamic import() with computed specifiers"
+    ]
+  },
+  "warnings": [],
+  "timing": {
+    "total_seconds": 1.59,
+    "requests": 10,
+    "request_seconds": 0.03,
+    "timeouts": 0
+  }
+}

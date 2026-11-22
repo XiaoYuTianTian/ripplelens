@@ -1,0 +1,253 @@
+{
+  "schema": "ripplelens/impact@1",
+  "tool": {
+    "name": "ripplelens",
+    "version": "0.1.0"
+  },
+  "generated_at": "2026-11-21T15:21:35+00:00",
+  "repo": {
+    "root": "C:\\Users\\jiangxiaoyu\\AppData\\Local\\Temp\\ripplelens-scenarios\\ts-constant",
+    "analyzed_root": "C:\\Users\\jiangxiaoyu\\AppData\\Local\\Temp\\ripplelens-scenarios\\ts-constant",
+    "base": {
+      "ref": "HEAD",
+      "sha": "79761e7f2201628d0701528359d2c2d32563f159"
+    },
+    "head": {
+      "ref": "working tree",
+      "sha": null
+    }
+  },
+  "options": {
+    "max_depth": 3,
+    "body_depth": 2,
+    "max_nodes": 400,
+    "min_score": 0.05,
+    "hub_threshold": 25,
+    "hub_keep": 8,
+    "request_timeout": 60.0,
+    "value_refs": true,
+    "dispatch": true,
+    "diagnostics": true,
+    "base_server": true
+  },
+  "servers": [
+    {
+      "name": "typescript",
+      "language": "typescript",
+      "files": 1,
+      "status": "ok",
+      "reason": null,
+      "version": "7.0.2",
+      "server_name": "typescript-go",
+      "init_seconds": 0.14,
+      "ready_seconds": 0.89,
+      "project_notes": []
+    }
+  ],
+  "summary": {
+    "files_changed": 1,
+    "entities_changed": 1,
+    "by_change": {
+      "value": 1
+    },
+    "impacted": 3,
+    "impacted_files": 2,
+    "breaking": 0,
+    "degraded": 0,
+    "truncated": false
+  },
+  "files": [
+    {
+      "path": "src/lib.ts",
+      "old_path": null,
+      "status": "M",
+      "language": "typescript",
+      "server": "typescript",
+      "added": 1,
+      "removed": 1,
+      "entities": [
+        "src/lib.ts#LIMIT@1"
+      ],
+      "module_lines": [],
+      "degraded": [],
+      "impacted_files": [
+        {
+          "path": "src/lib.ts",
+          "score": 0.432
+        },
+        {
+          "path": "src/app.ts",
+          "score": 0.2592
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "src/lib.ts#LIMIT@1",
+      "path": "src/lib.ts",
+      "name": "LIMIT",
+      "qualname": "LIMIT",
+      "kind": "variable",
+      "lines": [
+        1,
+        1
+      ],
+      "change": "value",
+      "depth": 0,
+      "score": 0.9,
+      "via": null,
+      "parent": null,
+      "seeds": [
+        "src/lib.ts#LIMIT@1"
+      ],
+      "confidence": "precise",
+      "reasons": [],
+      "breaking": [],
+      "truncated": null,
+      "signature": {
+        "before": "const LIMIT: 10",
+        "after": "const LIMIT: 20"
+      },
+      "renamed_from": null,
+      "lines_changed": 2,
+      "on_base": false,
+      "notes": [],
+      "impacted": 3
+    },
+    {
+      "id": "src/lib.ts#helper@15",
+      "path": "src/lib.ts",
+      "name": "helper",
+      "qualname": "helper",
+      "kind": "function",
+      "lines": [
+        15,
+        17
+      ],
+      "change": null,
+      "depth": 1,
+      "score": 0.432,
+      "via": "ref",
+      "parent": "src/lib.ts#LIMIT@1",
+      "seeds": [
+        "src/lib.ts#LIMIT@1"
+      ],
+      "confidence": "precise",
+      "reasons": [],
+      "breaking": [],
+      "truncated": null
+    },
+    {
+      "id": "src/app.ts#a@3",
+      "path": "src/app.ts",
+      "name": "a",
+      "qualname": "a",
+      "kind": "function",
+      "lines": [
+        3,
+        5
+      ],
+      "change": null,
+      "depth": 2,
+      "score": 0.2592,
+      "via": "call",
+      "parent": "src/lib.ts#helper@15",
+      "seeds": [
+        "src/lib.ts#LIMIT@1"
+      ],
+      "confidence": "precise",
+      "reasons": [],
+      "breaking": [],
+      "truncated": null
+    },
+    {
+      "id": "src/app.ts#b@7",
+      "path": "src/app.ts",
+      "name": "b",
+      "qualname": "b",
+      "kind": "function",
+      "lines": [
+        7,
+        9
+      ],
+      "change": null,
+      "depth": 2,
+      "score": 0.2592,
+      "via": "call",
+      "parent": "src/lib.ts#helper@15",
+      "seeds": [
+        "src/lib.ts#LIMIT@1"
+      ],
+      "confidence": "precise",
+      "reasons": [],
+      "breaking": [],
+      "truncated": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "src/lib.ts#LIMIT@1",
+      "target": "src/lib.ts#helper@15",
+      "kind": "ref",
+      "sites": [
+        16
+      ]
+    },
+    {
+      "source": "src/lib.ts#helper@15",
+      "target": "src/app.ts#a@3",
+      "kind": "call",
+      "sites": [
+        4
+      ]
+    },
+    {
+      "source": "src/lib.ts#helper@15",
+      "target": "src/app.ts#b@7",
+      "kind": "call",
+      "sites": [
+        8
+      ]
+    },
+    {
+      "source": "src/app.ts#a@3",
+      "target": "src/app.ts#b@7",
+      "kind": "call",
+      "sites": [
+        8
+      ]
+    }
+  ],
+  "paths": {
+    "src/lib.ts#helper@15": [
+      "src/lib.ts#LIMIT@1",
+      "src/lib.ts#helper@15"
+    ],
+    "src/app.ts#a@3": [
+      "src/lib.ts#LIMIT@1",
+      "src/lib.ts#helper@15",
+      "src/app.ts#a@3"
+    ],
+    "src/app.ts#b@7": [
+      "src/lib.ts#LIMIT@1",
+      "src/lib.ts#helper@15",
+      "src/app.ts#b@7"
+    ]
+  },
+  "truncation": [],
+  "blind_spots": {
+    "typescript": [
+      "calls through values typed `any`/`unknown`",
+      "string-keyed dynamic property access",
+      "dynamic import() with computed specifiers"
+    ]
+  },
+  "warnings": [],
+  "timing": {
+    "total_seconds": 1.38,
+    "requests": 8,
+    "request_seconds": 0.02,
+    "timeouts": 0
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "ripplelens",
+  "version": "0.1.0",
+  "description": "Function-level blast radius of your git diff, computed by compiler-backed language servers (Java, Go, TypeScript/JavaScript, Python, C, C++). Gives the agent the impacted callers and compile errors before it finishes, and opens a visual review UI for humans.",
+  "author": {
+    "name": "ripplelens contributors"
+  },
+  "homepage": "https://github.com/XiaoYuTianTian/ripplelens",
+  "repository": "https://github.com/XiaoYuTianTian/ripplelens",
+  "license": "MIT",
+  "keywords": ["code-review", "impact-analysis", "blast-radius", "lsp", "call-graph", "diff"]
+}

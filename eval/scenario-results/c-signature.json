@@ -1,0 +1,374 @@
+{
+  "schema": "ripplelens/impact@1",
+  "tool": {
+    "name": "ripplelens",
+    "version": "0.1.0"
+  },
+  "generated_at": "2026-11-21T15:22:00+00:00",
+  "repo": {
+    "root": "C:\\Users\\jiangxiaoyu\\AppData\\Local\\Temp\\ripplelens-scenarios\\c-signature",
+    "analyzed_root": "C:\\Users\\jiangxiaoyu\\AppData\\Local\\Temp\\ripplelens-scenarios\\c-signature",
+    "base": {
+      "ref": "HEAD",
+      "sha": "47382546524cb115d1b639902051a04dfc99a1a4"
+    },
+    "head": {
+      "ref": "working tree",
+      "sha": null
+    }
+  },
+  "options": {
+    "max_depth": 3,
+    "body_depth": 2,
+    "max_nodes": 400,
+    "min_score": 0.05,
+    "hub_threshold": 25,
+    "hub_keep": 8,
+    "request_timeout": 60.0,
+    "value_refs": true,
+    "dispatch": true,
+    "diagnostics": true,
+    "base_server": true
+  },
+  "servers": [
+    {
+      "name": "clangd",
+      "language": "c/c++",
+      "files": 2,
+      "status": "ok",
+      "reason": null,
+      "version": "clangd version 23.1.0 (https://github.com/llvm/llvm-project ea7d852a70e8bdfaf601d6626a760f9771b2c4b4) windows+grpc x86_64-pc-windows-msvc",
+      "server_name": "clangd",
+      "init_seconds": 0.11,
+      "ready_seconds": 2.14,
+      "project_notes": []
+    }
+  ],
+  "summary": {
+    "files_changed": 4,
+    "entities_changed": 2,
+    "by_change": {
+      "signature": 2
+    },
+    "impacted": 3,
+    "impacted_files": 1,
+    "breaking": 3,
+    "degraded": 0,
+    "truncated": false
+  },
+  "files": [
+    {
+      "path": ".gitignore",
+      "old_path": null,
+      "status": "M",
+      "language": null,
+      "server": null,
+      "added": 1,
+      "removed": 1,
+      "entities": [],
+      "module_lines": [],
+      "degraded": [
+        "language not supported"
+      ],
+      "impacted_files": []
+    },
+    {
+      "path": "compile_commands.json",
+      "old_path": null,
+      "status": "M",
+      "language": null,
+      "server": null,
+      "added": 21,
+      "removed": 21,
+      "entities": [],
+      "module_lines": [],
+      "degraded": [
+        "language not supported"
+      ],
+      "impacted_files": []
+    },
+    {
+      "path": "lib.c",
+      "old_path": null,
+      "status": "M",
+      "language": "c",
+      "server": "clangd",
+      "added": 2,
+      "removed": 2,
+      "entities": [
+        "lib.c#helper@5"
+      ],
+      "module_lines": [],
+      "degraded": [],
+      "impacted_files": [
+        {
+          "path": "app.c",
+          "score": 0.6
+        }
+      ]
+    },
+    {
+      "path": "lib.h",
+      "old_path": null,
+      "status": "M",
+      "language": "c",
+      "server": "clangd",
+      "added": 1,
+      "removed": 1,
+      "entities": [
+        "lib.h#helper@8"
+      ],
+      "module_lines": [],
+      "degraded": [],
+      "impacted_files": [
+        {
+          "path": "app.c",
+          "score": 0.6
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "lib.c#helper@5",
+      "path": "lib.c",
+      "name": "helper",
+      "qualname": "helper",
+      "kind": "function",
+      "lines": [
+        5,
+        7
+      ],
+      "change": "signature",
+      "depth": 0,
+      "score": 1.0,
+      "via": null,
+      "parent": null,
+      "seeds": [
+        "lib.c#helper@5"
+      ],
+      "confidence": "precise",
+      "reasons": [],
+      "breaking": [],
+      "truncated": null,
+      "signature": {
+        "before": "public: int helper(int x)",
+        "after": "int helper(int x, int y)"
+      },
+      "renamed_from": null,
+      "lines_changed": 4,
+      "on_base": false,
+      "notes": [],
+      "impacted": 3
+    },
+    {
+      "id": "lib.h#helper@8",
+      "path": "lib.h",
+      "name": "helper",
+      "qualname": "helper",
+      "kind": "function",
+      "lines": [
+        8,
+        8
+      ],
+      "change": "signature",
+      "depth": 0,
+      "score": 1.0,
+      "via": null,
+      "parent": null,
+      "seeds": [
+        "lib.h#helper@8"
+      ],
+      "confidence": "precise",
+      "reasons": [],
+      "breaking": [],
+      "truncated": null,
+      "signature": {
+        "before": "int helper(int x)",
+        "after": "int helper(int x, int y)"
+      },
+      "renamed_from": null,
+      "lines_changed": 2,
+      "on_base": false,
+      "notes": [],
+      "impacted": 3
+    },
+    {
+      "id": "app.c#a@3",
+      "path": "app.c",
+      "name": "a",
+      "qualname": "a",
+      "kind": "function",
+      "lines": [
+        3,
+        5
+      ],
+      "change": null,
+      "depth": 1,
+      "score": 0.6,
+      "via": "call",
+      "parent": "lib.c#helper@5",
+      "seeds": [
+        "lib.c#helper@5",
+        "lib.h#helper@8"
+      ],
+      "confidence": "precise",
+      "reasons": [],
+      "breaking": [
+        {
+          "line": 4,
+          "message": "Too few arguments to function call, expected 2, have 1\n\nC:\\Users\\jiangxiaoyu\\AppData\\Local\\Temp\\ripplelens-scenarios\\c-signature\\lib.h:8:5:\nnote: 'helper' declared here",
+          "source": "clang"
+        }
+      ],
+      "truncated": null
+    },
+    {
+      "id": "app.c#b@7",
+      "path": "app.c",
+      "name": "b",
+      "qualname": "b",
+      "kind": "function",
+      "lines": [
+        7,
+        9
+      ],
+      "change": null,
+      "depth": 1,
+      "score": 0.6,
+      "via": "call",
+      "parent": "lib.c#helper@5",
+      "seeds": [
+        "lib.c#helper@5",
+        "lib.h#helper@8"
+      ],
+      "confidence": "precise",
+      "reasons": [],
+      "breaking": [
+        {
+          "line": 8,
+          "message": "Too few arguments to function call, expected 2, have 1\n\nC:\\Users\\jiangxiaoyu\\AppData\\Local\\Temp\\ripplelens-scenarios\\c-signature\\lib.h:8:5:\nnote: 'helper' declared here",
+          "source": "clang"
+        }
+      ],
+      "truncated": null
+    },
+    {
+      "id": "app.c#c@15",
+      "path": "app.c",
+      "name": "c",
+      "qualname": "c",
+      "kind": "function",
+      "lines": [
+        15,
+        17
+      ],
+      "change": null,
+      "depth": 1,
+      "score": 0.6,
+      "via": "call",
+      "parent": "lib.c#helper@5",
+      "seeds": [
+        "lib.c#helper@5",
+        "lib.h#helper@8"
+      ],
+      "confidence": "precise",
+      "reasons": [],
+      "breaking": [
+        {
+          "line": 16,
+          "message": "Incompatible function pointer types passing 'int (int, int)' to parameter of type 'int (*)(int)'\n\napp.c:11:23: note: passing argument to parameter 'f' here",
+          "source": "clang"
+        }
+      ],
+      "truncated": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "lib.c#helper@5",
+      "target": "app.c#a@3",
+      "kind": "call",
+      "sites": [
+        4
+      ]
+    },
+    {
+      "source": "lib.c#helper@5",
+      "target": "app.c#b@7",
+      "kind": "call",
+      "sites": [
+        8
+      ]
+    },
+    {
+      "source": "lib.c#helper@5",
+      "target": "app.c#c@15",
+      "kind": "call",
+      "sites": [
+        16
+      ]
+    },
+    {
+      "source": "lib.h#helper@8",
+      "target": "app.c#a@3",
+      "kind": "call",
+      "sites": [
+        4
+      ]
+    },
+    {
+      "source": "lib.h#helper@8",
+      "target": "app.c#b@7",
+      "kind": "call",
+      "sites": [
+        8
+      ]
+    },
+    {
+      "source": "lib.h#helper@8",
+      "target": "app.c#c@15",
+      "kind": "call",
+      "sites": [
+        16
+      ]
+    },
+    {
+      "source": "app.c#a@3",
+      "target": "app.c#b@7",
+      "kind": "call",
+      "sites": [
+        8
+      ]
+    }
+  ],
+  "paths": {
+    "app.c#a@3": [
+      "lib.c#helper@5",
+      "app.c#a@3"
+    ],
+    "app.c#b@7": [
+      "lib.c#helper@5",
+      "app.c#b@7"
+    ],
+    "app.c#c@15": [
+      "lib.c#helper@5",
+      "app.c#c@15"
+    ]
+  },
+  "truncation": [],
+  "blind_spots": {
+    "c": [
+      "calls through function pointers",
+      "macros expanding to calls",
+      "files without a compile command"
+    ]
+  },
+  "warnings": [],
+  "timing": {
+    "total_seconds": 2.88,
+    "requests": 13,
+    "request_seconds": 0.06,
+    "timeouts": 0
+  }
+}

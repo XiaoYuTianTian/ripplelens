@@ -1,0 +1,87 @@
+{
+  "schema": "ripplelens/impact@1",
+  "tool": {
+    "name": "ripplelens",
+    "version": "0.1.0"
+  },
+  "generated_at": "2026-11-21T15:22:01+00:00",
+  "repo": {
+    "root": "C:\\Users\\jiangxiaoyu\\AppData\\Local\\Temp\\ripplelens-scenarios\\java-interface-signature",
+    "analyzed_root": "C:\\Users\\jiangxiaoyu\\AppData\\Local\\Temp\\ripplelens-scenarios\\java-interface-signature",
+    "base": {
+      "ref": "HEAD",
+      "sha": "33d76158bf14d78ffd210e13df2162e0174c3558"
+    },
+    "head": {
+      "ref": "working tree",
+      "sha": null
+    }
+  },
+  "options": {
+    "max_depth": 3,
+    "body_depth": 2,
+    "max_nodes": 400,
+    "min_score": 0.05,
+    "hub_threshold": 25,
+    "hub_keep": 8,
+    "request_timeout": 60.0,
+    "value_refs": true,
+    "dispatch": true,
+    "diagnostics": true,
+    "base_server": true
+  },
+  "servers": [
+    {
+      "name": "jdtls",
+      "language": "java",
+      "files": 1,
+      "status": "unavailable",
+      "reason": "failed to start: jdtls: server exited; stderr: Traceback (most recent call last):\n  File \"C:\\File\\Project\\_scratch\\tools\\jdtls\\bin\\/jdtls\", line 26, in <module>\n    jdtls.main(sys.argv[1:])\n  File \"C:\\File\\Project\\_scratch\\tools\\jdtls\\bin\\jdtls.py\", line 112, in main\n    java_executable = get_java_executable(known_args)\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\File\\Project\\_scratch\\tools\\jdtls\\bin\\jdtls.py\", line 40, in get_java_executable\n    raise Exception(\"jdtls requires at least Java 21\")\nException: jdtls requires at least Java 21; stderr:     java_executable = get_java_executable(known_args)\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\File\\Project\\_scratch\\tools\\jdtls\\bin\\jdtls.py\", line 40, in get_java_executable\n    raise Exception(\"jdtls requires at least Java 21\")\nException: jdtls requires at least Java 21"
+    }
+  ],
+  "summary": {
+    "files_changed": 1,
+    "entities_changed": 0,
+    "by_change": {},
+    "impacted": 0,
+    "impacted_files": 0,
+    "breaking": 0,
+    "degraded": 0,
+    "truncated": false
+  },
+  "files": [
+    {
+      "path": "src/main/java/fx/lib/Shape.java",
+      "old_path": null,
+      "status": "M",
+      "language": "java",
+      "server": null,
+      "added": 1,
+      "removed": 1,
+      "entities": [],
+      "module_lines": [],
+      "degraded": [
+        "jdtls unavailable; only line-level changes reported"
+      ],
+      "impacted_files": []
+    }
+  ],
+  "nodes": [],
+  "edges": [],
+  "paths": {},
+  "truncation": [],
+  "blind_spots": {
+    "java": [
+      "reflection (Class.forName, Method.invoke)",
+      "dependency-injection wiring resolved at runtime",
+      "calls from non-Java resources (XML, templates)"
+    ]
+  },
+  "warnings": [],
+  "timing": {
+    "total_seconds": 0.89,
+    "requests": 0,
+    "request_seconds": 0.0,
+    "timeouts": 0
+  }
+}
