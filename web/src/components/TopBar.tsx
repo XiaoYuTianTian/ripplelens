@@ -69,16 +69,16 @@ export default function TopBar(p: Props) {
       <div className="metrics">
         <span className="metric metric-changed">
           <b>{s.files_changed}</b>
-          <i>{t.filesChanged}</i>
+          <i>{fmt(t.filesChanged, { n: s.files_changed })}</i>
         </span>
         <span className="metric metric-impact">
           <b>{s.impacted}</b>
-          <i>{t.impactedFns}</i>
+          <i>{fmt(t.impactedFns, { n: s.impacted })}</i>
         </span>
         {s.breaking > 0 && (
           <button className="metric metric-error" onClick={() => p.onFocus({ type: "overview" })}>
             <b>{s.breaking}</b>
-            <i>{t.compileErrors}</i>
+            <i>{fmt(t.compileErrors, { n: s.breaking })}</i>
           </button>
         )}
       </div>

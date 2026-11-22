@@ -307,7 +307,7 @@ Environment overrides: `RIPPLELENS_AI_PROVIDER`, `RIPPLELENS_AI_BASE_URL`,
 skills/ripplelens/SKILL.md        shared by all three
 commands/review.md                /ripplelens:review [base]
 hooks/hooks.json                  PostToolUse(Edit|Write|MultiEdit) → mark dirty; Stop summary (opt-in)
-.mcp.json                         uvx ripplelens mcp
+.mcp.json                         uvx --from git+https://github.com/XiaoYuTianTian/ripplelens.git ripplelens mcp
 ```
 
 ## 6. Evaluation

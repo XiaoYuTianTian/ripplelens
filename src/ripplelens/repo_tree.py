@@ -6,7 +6,7 @@ import os
 import subprocess
 from pathlib import Path
 
-SKIP_DIRS = {".git", "node_modules", ".venv", "venv", "__pycache__", ".idea", ".vscode", "target", "dist", "build", ".cache"}
+SKIP_DIRS = {".git", "node_modules", ".venv", "venv", "__pycache__", ".idea", ".vscode", "target", "dist", "build", ".cache", ".settings", ".gradle", "out", "cmake-build-debug"}
 
 
 def list_repo_files(root: Path) -> list[str]:
@@ -15,6 +15,8 @@ def list_repo_files(root: Path) -> list[str]:
     files = _git_ls_files(root)
     if files is None:
         files = _walk_files(root)
+    else:
+        files = files + _git_untracked(root)
     return sorted(set(files))
 
 
@@ -48,6 +50,32 @@ def _git_ls_files(root: Path) -> list[str] | None:
             continue
         rel = raw.decode("utf-8", "replace").replace("\\", "/")
         if rel.startswith(".git/") or any(p in SKIP_DIRS for p in rel.split("/")):
+            continue
+        out.append(rel)
+    return out
+
+
+def _git_untracked(root: Path) -> list[str]:
+    """Untracked files the analysis also treats as changes (not gitignored)."""
+    try:
+        proc = subprocess.run(
+            ["git", "-C", str(root), "ls-files", "--others", "--exclude-standard", "-z"],
+            capture_output=True,
+            check=False,
+            timeout=30,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return []
+    if proc.returncode != 0:
+        return []
+    out: list[str] = []
+    for raw in proc.stdout.split(b"\0"):
+        if not raw:
+            continue
+        rel = raw.decode("utf-8", "replace").replace("\\", "/")
+        if rel.endswith("/") or any(p in SKIP_DIRS for p in rel.split("/")):
+            continue
+        if rel.split("/")[-1] in {".classpath", ".project", ".factorypath"} or rel.endswith(".class"):
             continue
         out.append(rel)
     return out

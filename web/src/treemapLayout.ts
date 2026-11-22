@@ -35,15 +35,18 @@ export interface MapLink {
 }
 
 const PAD = 3;
-const HEADER = 18;
+const HEADER = 26;
 const MIN_LABEL = 36;
 
-/** Keep heated leaves and ancestors that contain them. */
+/** Keep heated leaves and ancestors. Unaffected files inside a heated directory stay, so area matches the package. */
 export function pruneHeated(root: TreeNode): TreeNode {
   const walk = (n: TreeNode): TreeNode | null => {
     if (n.kind === "file") return n.heat === "none" ? null : { ...n, children: [] };
-    const kids = n.children.map(walk).filter((c): c is TreeNode => !!c);
-    if (!kids.length && n.heat === "none") return null;
+    const heatedKids = n.children.map(walk).filter((c): c is TreeNode => !!c);
+    if (!heatedKids.length && n.heat === "none") return null;
+    const have = new Set(heatedKids.map((c) => c.path));
+    const files = n.children.filter((c) => c.kind === "file" && !have.has(c.path)).map((c) => ({ ...c, children: [] as TreeNode[] }));
+    const kids = [...heatedKids, ...files];
     if (!kids.length) return null;
     let h: Heat = "none";
     for (const c of kids) h = worse(h, c.heat);
@@ -228,16 +231,13 @@ export function crossGroupLinks(m: Model, rects: MapRect[]): MapLink[] {
   }
 
   const resolve = (path: string): string | null => {
-    const gid = m.groupOfPath(path);
-    const g = byGroup.get(gid);
-    if (g) return g.path;
-    // walk up directories until a rect exists
     let p = path;
     while (p) {
       if (byPath.has(p)) return p;
       p = p.includes("/") ? p.slice(0, p.lastIndexOf("/")) : "";
     }
-    return byPath.has("") ? "" : null;
+    const gid = m.groupOfPath(path);
+    return byGroup.get(gid)?.path ?? (byPath.has("") ? "" : null);
   };
 
   const counts = new Map<string, { sourcePath: string; targetPath: string; count: number; soft: boolean }>();
@@ -258,6 +258,66 @@ export function crossGroupLinks(m: Model, rects: MapRect[]): MapLink[] {
   }
 
   return [...counts.entries()].map(([id, v]) => ({ id, ...v }));
+}
+
+/** One edge per other package, at most `limit`, from the hovered block outward. */
+export function peerLinks(m: Model, rects: MapRect[], key: string, limit = 6): MapLink[] {
+  const byPath = new Map(rects.map((r) => [r.path, r]));
+  const here = byPath.get(key);
+  if (!here) return [];
+  const root = here.kind === "dir" ? key : key.includes("/") ? key.slice(0, key.lastIndexOf("/")) : "";
+  const inside = (path: string) => path === root || (root !== "" && path.startsWith(`${root}/`)) || path === key;
+
+  const lift = (path: string): string | null => {
+    if (inside(path)) return null;
+    let best = "";
+    let found = false;
+    for (const r of rects) {
+      if (r.kind !== "dir") continue;
+      if (!r.path) continue;
+      const holds = path === r.path || path.startsWith(`${r.path}/`);
+      if (!holds || inside(r.path)) continue;
+      if (root && (root === r.path || root.startsWith(`${r.path}/`))) continue;
+      if (!found || r.path.length > best.length) {
+        best = r.path;
+        found = true;
+      }
+    }
+    return found ? best : null;
+  };
+
+  const counts = new Map<string, { targetPath: string; count: number; soft: boolean }>();
+  for (const e of m.rep.edges) {
+    const a = m.byId.get(e.source);
+    const b = m.byId.get(e.target);
+    if (!a || !b) continue;
+    const aIn = inside(a.path);
+    const bIn = inside(b.path);
+    if (aIn === bIn) continue;
+    const other = lift(aIn ? b.path : a.path);
+    if (!other || other === root) continue;
+    const soft = e.kind === "dispatch" || (e.sites?.length ?? 0) === 0;
+    const cur = counts.get(other);
+    if (cur) {
+      cur.count += 1;
+      cur.soft = cur.soft && soft;
+    } else counts.set(other, { targetPath: other, count: 1, soft });
+  }
+  return [...counts.values()]
+    .sort((a, b) => b.count - a.count)
+    .slice(0, limit)
+    .map((v) => ({ id: `${root}\0${v.targetPath}`, sourcePath: root || key, targetPath: v.targetPath, count: v.count, soft: v.soft }));
+}
+
+export function edgeAnchor(from: MapRect, to: MapRect): { x: number; y: number } {
+  const fx = from.x + from.w / 2;
+  const fy = from.y + from.h / 2;
+  const tx = to.x + to.w / 2;
+  const ty = to.y + to.h / 2;
+  const dx = tx - fx;
+  const dy = ty - fy;
+  if (Math.abs(dx) >= Math.abs(dy)) return { x: dx >= 0 ? from.x + from.w : from.x, y: fy };
+  return { x: fx, y: dy >= 0 ? from.y + from.h : from.y };
 }
 
 export function labelFits(r: MapRect): boolean {

@@ -266,7 +266,7 @@ function ImpactFileView({ model: m, path, onFocus, onPeek }: Props & { path: str
       </div>
       <Section title={t.impactedFiles} count={nodes.length}>
         {nodes.map((n) => (
-          <EntityLine key={n.id} m={m} n={n} onFocus={onFocus} onPeek={onPeek} />
+          <EntityLine key={n.id} m={m} n={n} onFocus={onFocus} onPeek={onPeek} extra={n.breaking[0]?.message} />
         ))}
       </Section>
     </>

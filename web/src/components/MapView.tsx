@@ -8,15 +8,16 @@ import {
   type TreeEntry,
 } from "../heat";
 import {
-  crossGroupLinks,
+  edgeAnchor,
   labelFits,
   layoutTreemap,
+  peerLinks,
   pruneHeated,
   toMapTree,
   type MapLink,
   type MapRect,
 } from "../treemapLayout";
-import { useT } from "../i18n";
+import { fmt, useT } from "../i18n";
 import { Icon } from "../view";
 
 interface Props {
@@ -47,10 +48,6 @@ function rectActive(r: MapRect, active: string | null, focus: Focus): boolean {
   if (focus.type === "group") return r.groupId === focus.id;
   if (!active) return false;
   return active === r.path || active.startsWith(r.path ? r.path + "/" : "");
-}
-
-function center(r: MapRect): { x: number; y: number } {
-  return { x: r.x + r.w / 2, y: r.y + r.h / 2 };
 }
 
 export default function MapView(p: Props) {
@@ -98,15 +95,16 @@ export default function MapView(p: Props) {
     return layoutTreemap(mapRoot, size.w, size.h);
   }, [mapRoot, size]);
 
-  const links = useMemo(() => (rects.length ? crossGroupLinks(p.model, rects) : []), [p.model, rects]);
   const byPath = useMemo(() => new Map(rects.map((r) => [r.path, r])), [rects]);
   const active = focusPath(p.model, p.focus);
+  const focusKey = active && byPath.has(active) ? active : null;
 
   const visibleLinks: MapLink[] = useMemo(() => {
-    const key = hoverPath ?? (active && byPath.has(active) ? active : null);
+    const key = hoverPath ?? focusKey;
     if (!key) return [];
-    return links.filter((l) => l.sourcePath === key || l.targetPath === key).slice(0, 12);
-  }, [links, hoverPath, active, byPath]);
+    return peerLinks(p.model, rects, key, 6);
+  }, [p.model, rects, hoverPath, focusKey]);
+  const linked = useMemo(() => new Set(visibleLinks.flatMap((l) => [l.sourcePath, l.targetPath])), [visibleLinks]);
 
   const clickRect = (r: MapRect) => {
     setMenu(null);
@@ -161,15 +159,18 @@ export default function MapView(p: Props) {
       <div className="map-canvas" style={{ width: size.w, height: size.h }}>
         {ordered.map((r) => {
           const on = rectActive(r, active, p.focus);
-          const dim = !!(hoverPath || active) && !on && hoverPath !== r.path && !(active && (active === r.path || active.startsWith(r.path + "/")));
+          const hoverRoot = hoverPath ?? focusKey;
+          const inHover =
+            !!hoverRoot && (r.path === hoverRoot || r.path.startsWith(`${hoverRoot}/`) || hoverRoot.startsWith(`${r.path}/`));
+          const dim = !!hoverRoot && !on && !inHover && !linked.has(r.path);
           const showLabel = labelFits(r);
           return (
             <button
               key={`${r.kind}:${r.path || "."}`}
               type="button"
-              className={`map-cell heat-${r.heat} ${r.kind} depth-${Math.min(r.depth, 4)} ${on ? "active" : ""} ${dim ? "dim" : ""}`}
+              className={`map-cell heat-${r.heat} ${r.kind} depth-${Math.min(r.depth, 4)} ${on ? "active" : ""} ${linked.has(r.path) ? "linked" : ""} ${dim ? "dim" : ""}`}
               style={{ left: r.x, top: r.y, width: r.w, height: r.h }}
-              title={`${r.path || "."} · ${r.weight} file${r.weight === 1 ? "" : "s"}`}
+              title={`${r.path || "."} · ${fmt(t.files, { n: r.weight })}`}
               onMouseEnter={() => {
                 setHoverPath(r.path);
                 const ids = p.model.rep.nodes.filter((n) => n.path === r.path || (r.path && n.path.startsWith(r.path + "/"))).map((n) => n.id);
@@ -211,15 +212,21 @@ export default function MapView(p: Props) {
             const a = byPath.get(l.sourcePath);
             const b = byPath.get(l.targetPath);
             if (!a || !b) return null;
-            const ca = center(a);
-            const cb = center(b);
+            const ca = edgeAnchor(a, b);
+            const cb = edgeAnchor(b, a);
             const midX = (ca.x + cb.x) / 2;
-            const midY = (ca.y + cb.y) / 2 - 24;
+            const midY = (ca.y + cb.y) / 2;
+            const dx = cb.x - ca.x;
+            const dy = cb.y - ca.y;
+            const len = Math.hypot(dx, dy) || 1;
+            const bend = Math.min(28, len * 0.15);
+            const cx = midX + (-dy / len) * bend;
+            const cy = midY + (dx / len) * bend;
             return (
               <path
                 key={l.id}
                 className={`map-wire ${l.soft ? "soft" : ""}`}
-                d={`M ${ca.x} ${ca.y} Q ${midX} ${midY} ${cb.x} ${cb.y}`}
+                d={`M ${ca.x} ${ca.y} Q ${cx} ${cy} ${cb.x} ${cb.y}`}
               />
             );
           })}

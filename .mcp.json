@@ -2,7 +2,7 @@
   "mcpServers": {
     "ripplelens": {
       "command": "uvx",
-      "args": ["ripplelens", "mcp"]
+      "args": ["--from", "git+https://github.com/XiaoYuTianTian/ripplelens.git", "ripplelens", "mcp"]
     }
   }
 }

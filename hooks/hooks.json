@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "uvx ripplelens hook post-edit",
+            "command": "uvx --from git+https://github.com/XiaoYuTianTian/ripplelens.git ripplelens hook post-edit",
             "timeout": 15
           }
         ]

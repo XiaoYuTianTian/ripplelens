@@ -1,4 +1,4 @@
-from ripplelens.analysis.changes import hover_signature, match_entities, normalize_code
+from ripplelens.analysis.changes import _header_only, hover_signature, match_entities, normalize_code
 from ripplelens.analysis.symbols import CLASS, FUNCTION, METHOD, VARIABLE, SymbolIndex, flatten
 from ripplelens.git.diff import parse_unified
 
@@ -63,6 +63,14 @@ def test_normalize_code():
     b = "def f():\n    if x:\n        y()\n        z()"
     assert normalize_code(a, True) != normalize_code(b, True)
     assert normalize_code("  def f():\n      y()", True) == normalize_code("def f():\n    y()", True)
+
+
+def test_one_line_body_is_not_part_of_the_header():
+    assert _header_only("func Round(v int) int { return v }", True) == "func Round(v int) int "
+    assert _header_only("func Round(v int) int { return (v + 50) / 100 * 100 }", True) == "func Round(v int) int "
+    assert _header_only("def helper(x: int) -> int: return x + 1", True) == "def helper(x: int) -> int"
+    assert _header_only("int area();", True) == "int area();"
+    assert _header_only("func Round(v int) int {\n\treturn v\n}", False).startswith("func Round")
 
 
 def test_hover_signature_variants():

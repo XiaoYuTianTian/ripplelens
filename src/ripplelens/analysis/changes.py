@@ -131,6 +131,20 @@ def slice_lines(text: str, start: int, end: int) -> str:
     return "\n".join(lines[start : end + 1])
 
 
+def _header_only(text: str, single_line: bool) -> str:
+    """Drop a same-line body so a one-line function is compared by its declaration."""
+    if not single_line or not text:
+        return text
+    line = text.splitlines()[0]
+    if "{" in line:
+        return line.split("{", 1)[0]
+    # Python one-liner: `def f(x) -> int: return x`
+    m = re.match(r"^(\s*(?:async\s+)?def\b.*\S)\s*:", line)
+    if m and m.end() < len(line):
+        return m.group(1)
+    return line
+
+
 # ----------------------------------------------------------------------------- matching
 
 
@@ -362,10 +376,11 @@ class ChangeExtractor:
     def _header_changed(h: Entity, b: Entity, base_text: str | None, head_text: str | None) -> bool:
         # One-line declarations (Java interface methods) use the whole span; longer
         # callables compare from the start of the entity through the name selection.
+        # A body on that same line (`func F() int { return 1 }`) is not part of the header.
         b_end = b.end_line if b.end_line == b.start_line else max(b.sel_line, b.start_line)
         h_end = h.end_line if h.end_line == h.start_line else max(h.sel_line, h.start_line)
-        hb = normalize_code(slice_lines(base_text or "", b.start_line, b_end), False)
-        hh = normalize_code(slice_lines(head_text or "", h.start_line, h_end), False)
+        hb = normalize_code(_header_only(slice_lines(base_text or "", b.start_line, b_end), b.start_line == b_end), False)
+        hh = normalize_code(_header_only(slice_lines(head_text or "", h.start_line, h_end), h.start_line == h_end), False)
         return hb != hh
 
     def _detect_renames(

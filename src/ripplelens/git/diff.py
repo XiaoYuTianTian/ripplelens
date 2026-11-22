@@ -205,10 +205,23 @@ def resolve(repo: str | Path, base: str | None = None, head: str | None = None) 
     )
 
 
+_GENERATED = {"target", "bin", ".settings", "out", "cmake-build-debug", ".gradle"}
+_GENERATED_FILES = {".classpath", ".project", ".factorypath"}
+
+
+def _generated(rel: str) -> bool:
+    rel = rel.replace("\\", "/")
+    parts = rel.split("/")
+    if parts[0] in _GENERATED or any(p in _GENERATED for p in parts):
+        return True
+    name = parts[-1]
+    return name in _GENERATED_FILES or name.endswith(".class")
+
+
 def _untracked(root: Path) -> list[FileDiff]:
     out = []
     for rel in git(root, "ls-files", "--others", "--exclude-standard", "-z").split("\0"):
-        if not rel:
+        if not rel or _generated(rel):
             continue
         p = root / rel
         try:

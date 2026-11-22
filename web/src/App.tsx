@@ -268,7 +268,7 @@ function Review({ model: m, prefs, onPrefs, onReload, useAi }: { model: Model; p
     }
   }, [m, focus]);
 
-  const drawerOpen = focus !== null;
+  const drawerOpen = focus !== null && prefs.view === "chain";
   const treeCollapsed = !!prefs.treeCollapsed;
   const leftInset = treeCollapsed ? 28 : TREE_W;
   const activePath = pathOfFocus(m, focus);
@@ -408,6 +408,7 @@ function Review({ model: m, prefs, onPrefs, onReload, useAi }: { model: Model; p
             </div>
           )}
         </div>
+        {prefs.view === "chain" && (
         <div className="dock dock-right" style={{ right: drawerOpen ? 476 : 16 }}>
           <button className="pill icon" title={`${t.fit} (f)`} onClick={() => board.current?.fit()}>
             <Icon name="fit" size={14} />
@@ -419,6 +420,7 @@ function Review({ model: m, prefs, onPrefs, onReload, useAi }: { model: Model; p
             <Icon name="plus" size={14} />
           </button>
         </div>
+        )}
         {drawerOpen && (
           <Drawer
             model={m}

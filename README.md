@@ -31,7 +31,7 @@ an AI reviewer through MCP.
 ## 30-second quickstart
 
 ```bash
-pipx install ripplelens          # or: uvx ripplelens ...
+uvx --from git+https://github.com/XiaoYuTianTian/ripplelens.git ripplelens
 cd your-repo
 ripplelens doctor                # which servers are installed, what the project needs
 ripplelens review                # analyze working-tree changes and open the UI
@@ -92,9 +92,20 @@ Details: [docs/spec.md](docs/spec.md).
 /plugin install ripplelens@ripplelens
 ```
 
-Adds the `ripplelens` MCP server (`uvx ripplelens mcp`), the
-`/ripplelens:review [base]` command, a skill that tells Claude when and how to
-use the impact data, and a hook that marks the analysis stale after edits.
+Then restart Claude Code. You also need [uv](https://docs.astral.sh/uv/) on `PATH`
+(`uvx`). The plugin does not come from PyPI: the first tool call runs
+
+```text
+uvx --from git+https://github.com/XiaoYuTianTian/ripplelens.git ripplelens mcp
+```
+
+which builds this repository (the review UI is already in `web_dist`). The
+`/ripplelens:review [base]` command and skill tell Claude when to use the impact
+data. After an edit, a hook marks the cached analysis stale.
+
+The project you review must be a git repository. Install the language server for
+each language you care about (`gopls`, `typescript-language-server`,
+`basedpyright`, `jdtls`, `clangd`). `ripplelens doctor` says which one is missing.
 
 ### Cursor and Codex
 

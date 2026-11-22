@@ -3,7 +3,7 @@ import type { Model } from "./model";
 
 export type Heat = "changed" | "error" | "direct" | "indirect" | "none";
 
-const RANK: Record<Heat, number> = { changed: 4, error: 3, direct: 2, indirect: 1, none: 0 };
+const RANK: Record<Heat, number> = { error: 4, changed: 3, direct: 2, indirect: 1, none: 0 };
 
 export function worse(a: Heat, b: Heat): Heat {
   return RANK[a] >= RANK[b] ? a : b;

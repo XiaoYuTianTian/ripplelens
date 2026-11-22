@@ -101,6 +101,26 @@ export function hideKey(kind: "unit" | "file" | "group", id: string): string {
   return `${kind}:${id}`;
 }
 
+/** Header + source of the same symbol (foo.h / foo.c) share one row. */
+function collapseSymbols(entities: ImpactNode[]): ImpactNode[][] {
+  const groups: ImpactNode[][] = [];
+  const index = new Map<string, number>();
+  for (const e of entities) {
+    const key = `${e.qualname}\0${e.change ?? ""}`;
+    const at = index.get(key);
+    if (at == null) {
+      index.set(key, groups.length);
+      groups.push([e]);
+    } else groups[at].push(e);
+  }
+  return groups.map((g) =>
+    [...g].sort((a, b) => {
+      const score = (n: ImpactNode) => (/\.(h|hh|hpp|hxx)$/i.test(n.path) ? 2 : 0) + (n.impacted ?? 0);
+      return score(b) - score(a);
+    }),
+  );
+}
+
 function isRisky(m: Model, n: ImpactNode): boolean {
   return (!!n.change && CONTRACT.has(n.change)) || m.errorsBelow(n.id) > 0 || n.confidence !== "precise";
 }
@@ -121,7 +141,11 @@ export function computeLayout(m: Model, o: ViewOpts, t: { changed: string; direc
       if (o.riskyOnly && !isRisky(m, e)) return false;
       return true;
     });
-    if (!entities.length) continue;
+    if (!entities.length) {
+      if (u.entities.length || scope) continue;
+      unitsVisible.push({ u, entities: [] });
+      continue;
+    }
     unitsVisible.push({ u, entities });
     for (const e of entities) visibleSeeds.add(e.id);
   }
@@ -193,8 +217,10 @@ export function computeLayout(m: Model, o: ViewOpts, t: { changed: string; direc
     for (const { u, entities } of list) {
       const cid = `u:${u.id}`;
       const cap = o.expandedCards.has(cid) ? Infinity : tier === "full" ? S.MAX_ROWS_CHANGED : S.MAX_ROWS_MEDIUM;
-      const shown = entities.slice(0, cap);
-      const more = entities.length - shown.length;
+      const grouped = collapseSymbols(entities);
+      const shownGroups = grouped.slice(0, cap);
+      const more = grouped.length - shownGroups.length;
+      const shown = shownGroups.map((g) => g[0]);
       const rows: RowData[] = shown.map((e) => ({
         id: e.id, name: e.qualname, change: e.change, tone: e.change && CONTRACT.has(e.change) ? "contract" : e.change === "body" ? "body" : "minor",
         count: e.impacted ?? 0, errorsBelow: m.errorsBelow(e.id), confidence: e.confidence,
@@ -213,8 +239,13 @@ export function computeLayout(m: Model, o: ViewOpts, t: { changed: string; direc
           sources, targets: [],
         } satisfies CardData,
       });
-      shown.forEach((e, i) => anchorsSrc.set(e.id, { node: cid, handle: `s:${e.id}`, y: gp.y + cp.y + S.CARD_HEAD + i * S.ROW_H + S.ROW_H / 2 }));
-      for (const e of entities.slice(shown.length)) anchorsSrc.set(e.id, { node: cid, handle: "s:card", y: gp.y + cp.y + S.CARD_HEAD / 2 });
+      shownGroups.forEach((g, i) => {
+        const y = gp.y + cp.y + S.CARD_HEAD + i * S.ROW_H + S.ROW_H / 2;
+        for (const e of g) anchorsSrc.set(e.id, { node: cid, handle: `s:${g[0].id}`, y });
+      });
+      for (const g of grouped.slice(shownGroups.length)) {
+        for (const e of g) anchorsSrc.set(e.id, { node: cid, handle: "s:card", y: gp.y + cp.y + S.CARD_HEAD / 2 });
+      }
       cy += h + S.CARD_GAP;
     }
     const gh = cy - S.CARD_GAP + S.GP;

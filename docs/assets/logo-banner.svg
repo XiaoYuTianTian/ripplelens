@@ -1,11 +1,12 @@
-﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 72" role="img" aria-label="RippleLens">
-  <g fill="none" stroke="#141a2a" stroke-width="2.15" stroke-linecap="round" stroke-linejoin="round" transform="translate(8 16) scale(1.25)">
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 96" role="img" aria-label="RippleLens">
+  <rect width="520" height="96" rx="22" fill="#f6f3ec"/>
+  <g fill="none" stroke="#141a2a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" transform="translate(28 22) scale(1.55)">
     <path d="M5.2 26.2V6.4h6.4a5.2 5.2 0 0 1 0 10.4H5.2"/>
     <path d="M10.6 16.8 17.2 26.2"/>
     <path d="M20.4 6.4v19.8H29"/>
   </g>
-  <circle cx="22" cy="30.5" r="1.8" fill="#ff7043"/>
-  <text x="62" y="48" font-family="Segoe UI, ui-sans-serif, system-ui, sans-serif" font-size="36" font-weight="650" letter-spacing="-1.1">
-    <tspan fill="#141a2a">Ripple</tspan><tspan fill="#5b6cff">Lens</tspan>
+  <circle cx="45.4" cy="40" r="2.3" fill="#ff7043"/>
+  <text x="96" y="60" font-family="Segoe UI, ui-sans-serif, system-ui, sans-serif" font-size="40" font-weight="700" letter-spacing="-1.2">
+    <tspan fill="#141a2a">Ripple</tspan><tspan fill="#3d4ed8">Lens</tspan>
   </text>
 </svg>

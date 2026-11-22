@@ -29,7 +29,7 @@ RippleLens 读取 git diff，找出你改过的函数、方法、类型和常量
 ## 30 秒上手
 
 ```bash
-pipx install ripplelens          # 或：uvx ripplelens ...
+uvx --from git+https://github.com/XiaoYuTianTian/ripplelens.git ripplelens
 cd your-repo
 ripplelens doctor                # 检查语言服务器与项目需求
 ripplelens review                # 分析工作区改动并打开评审界面
@@ -85,8 +85,15 @@ DI 容器，以及非代码资源里的调用。报告会按 diff 中的语言�
 /plugin install ripplelens@ripplelens
 ```
 
-会装上 `ripplelens` MCP 服务器（`uvx ripplelens mcp`）、`/ripplelens:review [base]`
-命令、告诉 Claude 何时如何使用波及数据的 skill，以及编辑后把分析标为过期的 hook。
+装完后重开一次 Claude Code。机器上还要有 [uv](https://docs.astral.sh/uv/)（提供 `uvx`），并且在 PATH 里。插件不从 PyPI 安装程序，第一次调用会执行：
+
+```text
+uvx --from git+https://github.com/XiaoYuTianTian/ripplelens.git ripplelens mcp
+```
+
+uv 会从本仓库拉下代码并装好（评审界面已经打进 `web_dist`，不用再跑 npm）。`/ripplelens:review [base]` 命令和 skill 告诉 Claude 何时使用波及数据。编辑文件后，hook 会把缓存的分析结果标成过期。
+
+被分析的项目必须是 git 仓库，并装好对应语言的语言服务器（`gopls`、`typescript-language-server`、`basedpyright`、`jdtls`、`clangd`）。缺哪个可以用 `ripplelens doctor` 看。
 
 ### Cursor 与 Codex
 
