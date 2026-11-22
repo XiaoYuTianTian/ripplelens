@@ -206,6 +206,7 @@ kbd { font: 11px var(--font-mono); padding: 1px 6px; border: 1px solid var(--bor
 .map-empty { margin: auto; color: var(--text-3); display: flex; align-items: center; gap: 10px; }
 .map-cell {
   position: absolute; box-sizing: border-box; margin: 0; padding: 4px 6px;
+  display: flex; align-items: flex-start; justify-content: flex-start;
   border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
   border-radius: 6px; cursor: pointer; text-align: left;
   transition: opacity 0.15s, outline 0.12s, filter 0.15s;
