@@ -1,7 +1,6 @@
 ﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" role="img" aria-label="RippleLens">
-  <path d="M13 1.8A11.2 11.2 0 0 1 24.2 13" stroke="#5b6cff" stroke-width="1.35" opacity=".28"/>
-  <circle cx="13" cy="13" r="8.1" stroke="#5b6cff" stroke-width="1.8"/>
-  <circle cx="13" cy="13" r="5.1" stroke="#5b6cff" stroke-width="1.4" opacity=".5"/>
-  <circle cx="13" cy="13" r="2.2" fill="#ff7043"/>
-  <path d="M18.85 18.85 27.5 27.5" stroke="#141a2a" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M5.2 26.2V6.4h6.4a5.2 5.2 0 0 1 0 10.4H5.2" stroke="#141a2a" stroke-width="2.15" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M10.6 16.8 17.2 26.2" stroke="#141a2a" stroke-width="2.15" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="11.2" cy="11.6" r="1.45" fill="#ff7043"/>
+  <path d="M20.4 6.4v19.8H29" stroke="#141a2a" stroke-width="2.15" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

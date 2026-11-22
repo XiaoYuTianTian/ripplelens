@@ -55,11 +55,10 @@ export const langColor = (l: string | null | undefined) => (l && LANG_COLOR[l]) 
 export function Logo({ size = 24 }: { size?: number }) {
   return (
     <svg className="logo" width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
-      <path d="M13 1.8 A11.2 11.2 0 0 1 24.2 13" className="logo-ring logo-ring-soft" />
-      <circle cx="13" cy="13" r="8.1" className="logo-ring" />
-      <circle cx="13" cy="13" r="5.1" className="logo-ring logo-ring-2" />
-      <circle cx="13" cy="13" r="2.2" className="logo-core" />
-      <path d="M18.85 18.85 L27.5 27.5" className="logo-handle" />
+      <path d="M5.2 26.2V6.4h6.4a5.2 5.2 0 0 1 0 10.4H5.2" />
+      <path d="M10.6 16.8 17.2 26.2" />
+      <circle className="logo-dot" cx="11.2" cy="11.6" r="1.45" />
+      <path d="M20.4 6.4v19.8H29" />
     </svg>
   );
 }

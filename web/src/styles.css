@@ -68,13 +68,9 @@ code, .mono { font-family: var(--font-mono); font-size: 12px; }
 .spinner { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--border-strong); border-top-color: var(--impact); animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ---------------------------------------------------------------- logo */
-.logo { fill: none; flex: none; }
-.logo-core { fill: var(--changed); }
-.logo-ring { stroke: var(--impact); stroke-width: 1.7; }
-.logo-ring-2 { opacity: 0.5; stroke-width: 1.35; }
-.logo-ring-soft { opacity: 0.28; stroke-width: 1.35; }
-.logo-handle { stroke: var(--text); stroke-width: 2.3; stroke-linecap: round; }
+/* ---------------------------------------------------------------- logo — typographic RL */
+.logo { fill: none; flex: none; stroke: var(--text); stroke-width: 2.15; stroke-linecap: round; stroke-linejoin: round; }
+.logo-dot { fill: var(--changed); stroke: none; }
 
 /* ---------------------------------------------------------------- top bar */
 .topbar {

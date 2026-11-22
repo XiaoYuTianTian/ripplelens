@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/assets/demo.gif" alt="RippleLens 演示：悬浮连线、聚焦改动、AI 意见、展开分组" width="900" />
+  <img src="docs/assets/demo.zh.gif" alt="RippleLens 演示：悬浮连线、聚焦改动、AI 意见、展开分组、影响图" width="900" />
 </p>
 
 RippleLens 读取 git diff，找出你改过的函数、方法、类型和常量，再通过该语言自己的
@@ -23,6 +23,8 @@ RippleLens 读取 git diff，找出你改过的函数、方法、类型和常量
 | 可选 AI | 只输出有证据的意见 —— 默认关闭，配好才启用 |
 
 ![看板（浅色）](docs/assets/board-light.zh.png)
+
+![影响图 — 面积随文件数，颜色表示波及](docs/assets/map-light.zh.png)
 
 ## 30 秒上手
 

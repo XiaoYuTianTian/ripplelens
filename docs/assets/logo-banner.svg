@@ -1,11 +1,11 @@
-﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 120" fill="none" role="img" aria-label="RippleLens">
-  <rect width="480" height="120" rx="24" fill="#eef1f6"/>
-  <g transform="translate(26,28) scale(3.5)">
-    <path d="M13 1.8A11.2 11.2 0 0 1 24.2 13" stroke="#5b6cff" stroke-width="1.35" opacity=".28"/>
-    <circle cx="13" cy="13" r="8.1" stroke="#5b6cff" stroke-width="1.8"/>
-    <circle cx="13" cy="13" r="5.1" stroke="#5b6cff" stroke-width="1.4" opacity=".5"/>
-    <circle cx="13" cy="13" r="2.2" fill="#ff7043"/>
-    <path d="M18.85 18.85 27.5 27.5" stroke="#141a2a" stroke-width="2.4" stroke-linecap="round"/>
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 72" role="img" aria-label="RippleLens">
+  <g fill="none" stroke="#141a2a" stroke-width="2.15" stroke-linecap="round" stroke-linejoin="round" transform="translate(8 16) scale(1.25)">
+    <path d="M5.2 26.2V6.4h6.4a5.2 5.2 0 0 1 0 10.4H5.2"/>
+    <path d="M10.6 16.8 17.2 26.2"/>
+    <path d="M20.4 6.4v19.8H29"/>
   </g>
-  <text x="150" y="74" font-family="Segoe UI, SF Pro Display, PingFang SC, sans-serif" font-size="48" font-weight="650" fill="#141a2a">RippleLens</text>
+  <circle cx="22" cy="30.5" r="1.8" fill="#ff7043"/>
+  <text x="62" y="48" font-family="Segoe UI, ui-sans-serif, system-ui, sans-serif" font-size="36" font-weight="650" letter-spacing="-1.1">
+    <tspan fill="#141a2a">Ripple</tspan><tspan fill="#5b6cff">Lens</tspan>
+  </text>
 </svg>

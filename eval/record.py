@@ -7,7 +7,8 @@ It builds the `shop` demo repo (eval/demo.py), starts the review UI and the loca
 (eval/fake_model.py) with a throwaway AI config, then drives the browser through hover, focus,
 AI review and group expansion. Output, per language (`.zh` suffix for Chinese):
 
-  board-light.png  board-dark.png  focus-light.png  ai-dark.png  groups-light.png  demo.gif
+    board-light.png  board-dark.png  focus-light.png  ai-dark.png  groups-light.png
+    map-light.png  demo.gif
 """
 
 from __future__ import annotations
@@ -240,6 +241,9 @@ def record_gif(browser, url: str, lang: str, out: Path) -> None:
     s.more_detail(0)
     s.page.wait_for_timeout(500)
     s.snap(1400)
+    s.click(s.page.locator(".topbar .seg button", has_text=re.compile(r"^(Impact|影响图)$")), True)
+    s.page.wait_for_timeout(500)
+    s.snap(1800)
     frames = s.frames
     s.close()
     write_gif(frames, out / f"demo{suffix(lang)}.gif")
@@ -288,6 +292,12 @@ def record_shots(browser, url: str, lang: str, out: Path) -> None:
             s.page.mouse.move(VIEW["width"] * 0.4, VIEW["height"] - 20)
             s.page.wait_for_timeout(400)
             s.shot(out / f"groups-light{sx}.png")
+            s.more_detail(0)
+            s.page.locator(".topbar .seg button", has_text=re.compile(r"^(Impact|影响图)$")).click()
+            s.page.wait_for_timeout(700)
+            s.page.mouse.move(VIEW["width"] * 0.55, VIEW["height"] - 30)
+            s.page.wait_for_timeout(250)
+            s.shot(out / f"map-light{sx}.png")
         s.close()
 
 

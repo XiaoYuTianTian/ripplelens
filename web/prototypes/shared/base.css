@@ -19,12 +19,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
   position: relative; z-index: 5;
 }
 .brand { display: flex; align-items: center; gap: 9px; }
-.logo { width: 24px; height: 24px; fill: none; }
-.logo-core { fill: var(--changed); }
-.logo-ring { stroke: var(--impact); stroke-width: 1.7; }
-.logo-ring-2 { opacity: .5; stroke-width: 1.35; }
-.logo-ring-soft { opacity: .28; stroke-width: 1.35; }
-.logo-handle { stroke: var(--text); stroke-width: 2.3; stroke-linecap: round; }
+.logo { width: 24px; height: 24px; fill: none; stroke: var(--text); stroke-width: 2.15; stroke-linecap: round; stroke-linejoin: round; }
+.logo-dot { fill: var(--changed); stroke: none; }
 .brand-name { font: var(--brand-weight) 16px/1 var(--font-display); letter-spacing: var(--brand-tracking); }
 .range { display: flex; align-items: center; gap: 6px; font: 12px var(--font-mono); color: var(--text-2); white-space: nowrap; flex: none; }
 .focus-chip, .focus-label { white-space: nowrap; flex: none; }

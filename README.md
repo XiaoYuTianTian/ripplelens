@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/assets/demo.gif" alt="RippleLens demo: hover wires, focus a change, AI findings, expand a group" width="900" />
+  <img src="docs/assets/demo.gif" alt="RippleLens demo: hover wires, focus a change, AI findings, groups, impact map" width="900" />
 </p>
 
 RippleLens takes a git diff, finds the functions, methods, types and constants you
@@ -25,6 +25,8 @@ an AI reviewer through MCP.
 | Optional AI | structured findings only — off until you configure it |
 
 ![Board (light)](docs/assets/board-light.png)
+
+![Impact map — packages sized by file count](docs/assets/map-light.png)
 
 ## 30-second quickstart
 
