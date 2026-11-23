@@ -20,7 +20,7 @@ export interface ViewState {
   reviewed: Set<string>;
   marks: Map<string, "high" | "medium" | "low">;
   act: {
-    hover: (ids: string[] | null) => void;
+    hover: (ids: string[] | null, extent?: "file" | "chain") => void;
     focus: (f: Focus) => void;
     hide: (key: string, label: string) => void;
     toggleCard: (id: string) => void;

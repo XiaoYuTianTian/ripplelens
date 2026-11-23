@@ -29,7 +29,7 @@ const save = (key: string, v: unknown) => {
   }
 };
 
-const DEFAULT_PREFS: Prefs = { theme: "system", lang: "auto", detail: "auto", view: "chain", treeCollapsed: false };
+const DEFAULT_PREFS: Prefs = { theme: "system", lang: "auto", detail: "auto", view: "map", treeCollapsed: false };
 const TREE_W = 272;
 const DEFAULT_FILTERS: Filters = { riskyOnly: false, hideTests: false, hideMinor: false, maxDepth: 0 };
 
@@ -100,6 +100,7 @@ function Review({ model: m, prefs, onPrefs, onReload, useAi }: { model: Model; p
   const [focus, setFocusRaw] = useState<Focus>(null);
   const [tab, setTab] = useState<"details" | "ai">("details");
   const [hoverIds, setHoverIds] = useState<string[] | null>(null);
+  const [hoverExtent, setHoverExtent] = useState<"file" | "chain">("chain");
   const [peekIds, setPeekIds] = useState<string[] | null>(null);
   const [filters, setFilters] = useState<Filters>(() => stored("rl:filters", DEFAULT_FILTERS));
   const [hidden, setHidden] = useState<Record<string, string>>(() => stored(`rl:hidden:${K}`, {}));
@@ -153,7 +154,11 @@ function Review({ model: m, prefs, onPrefs, onReload, useAi }: { model: Model; p
   );
 
   const activeHover = peekIds ?? hoverIds;
-  const lit = useMemo(() => (activeHover ? m.scopeOf(activeHover) : null), [m, activeHover]);
+  const lit = useMemo(() => {
+    if (!activeHover) return null;
+    if (!peekIds && hoverExtent === "file") return new Set(activeHover);
+    return m.scopeOf(activeHover);
+  }, [m, activeHover, peekIds, hoverExtent]);
   const edges = useMemo(() => {
     if (lit) return layout.edges.filter((e) => e.data!.pairs.some(([s, d]) => lit.has(s) && lit.has(d)));
     return focusIds ? layout.edges : [];
@@ -188,7 +193,10 @@ function Review({ model: m, prefs, onPrefs, onReload, useAi }: { model: Model; p
     reviewed,
     marks: ai.marks,
     act: {
-      hover: setHoverIds,
+      hover: (ids, extent = "chain") => {
+        setHoverExtent(extent);
+        setHoverIds(ids);
+      },
       focus: setFocus,
       hide,
       toggleCard: toggleIn(setExpandedCards),
@@ -327,7 +335,10 @@ function Review({ model: m, prefs, onPrefs, onReload, useAi }: { model: Model; p
           collapsed={treeCollapsed}
           onToggleCollapsed={() => onPrefs({ ...prefs, treeCollapsed: !treeCollapsed })}
           onFocus={setFocus}
-          onHover={setHoverIds}
+          onHover={(ids, extent) => {
+            setHoverExtent(extent ?? "file");
+            setHoverIds(ids);
+          }}
         />
         {hasChanges ? (
           prefs.view === "map" ? (
@@ -336,7 +347,10 @@ function Review({ model: m, prefs, onPrefs, onReload, useAi }: { model: Model; p
               focus={focus}
               leftInset={leftInset}
               onFocus={setFocus}
-              onHover={setHoverIds}
+              onHover={(ids, extent) => {
+            setHoverExtent(extent ?? "file");
+            setHoverIds(ids);
+          }}
               onOpenChain={(f) => {
                 setFocus(f);
                 onPrefs({ ...prefs, view: "chain" });

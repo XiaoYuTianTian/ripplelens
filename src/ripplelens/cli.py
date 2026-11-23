@@ -135,10 +135,18 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
         prog="ripplelens",
         description="Function-level blast radius of a git diff, computed by compiler-backed language servers.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=(
+            "examples (run inside a git repo):\n"
+            "  ripplelens doctor            check which language servers are available\n"
+            "  ripplelens review            analyze uncommitted changes and open the review UI\n"
+            "  ripplelens review --base main\n"
+            "  ripplelens analyze --format markdown"
+        ),
     )
     ap.add_argument("--version", action="version", version=f"ripplelens {__version__}")
     ap.add_argument("-v", "--verbose", action="store_true")
-    sub = ap.add_subparsers(dest="cmd", required=True)
+    sub = ap.add_subparsers(dest="cmd")
 
     p = sub.add_parser("analyze", help="print the impact report (markdown, json, or AI review context)")
     _add_diff_args(p)
@@ -176,6 +184,9 @@ def main(argv: list[str] | None = None) -> int:
     p.set_defaults(fn=cmd_hook)
 
     args = ap.parse_args(argv)
+    if args.cmd is None:
+        ap.print_help()
+        return 0
     logging.basicConfig(
         level=logging.DEBUG if args.verbose else logging.WARNING,
         format="%(levelname)s %(name)s: %(message)s",

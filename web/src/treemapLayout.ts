@@ -9,6 +9,10 @@ export interface MapTreeNode {
   heat: Heat;
   weight: number;
   groupId: string;
+  /** Directory tile that can be opened; its contents are not drawn yet. */
+  drill?: boolean;
+  /** This directory is the one opened inside its parent. */
+  open?: boolean;
   children: MapTreeNode[];
 }
 
@@ -20,6 +24,8 @@ export interface MapRect {
   groupId: string;
   weight: number;
   depth: number;
+  drill?: boolean;
+  open?: boolean;
   x: number;
   y: number;
   w: number;
@@ -177,6 +183,8 @@ function placeNode(node: MapTreeNode, x: number, y: number, w: number, h: number
     groupId: node.groupId,
     weight: node.weight,
     depth,
+    drill: node.drill,
+    open: node.open,
     x,
     y,
     w: rw,
@@ -261,6 +269,45 @@ export function crossGroupLinks(m: Model, rects: MapRect[]): MapLink[] {
 }
 
 /** One edge per other package, at most `limit`, from the hovered block outward. */
+export function findMapNode(root: MapTreeNode, path: string): MapTreeNode | null {
+  if ((root.path || "") === path) return root;
+  for (const c of root.children) {
+    const hit = findMapNode(c, path);
+    if (hit) return hit;
+  }
+  return null;
+}
+
+function collapse(node: MapTreeNode, open: boolean): MapTreeNode {
+  return {
+    ...node,
+    open,
+    drill: !open && node.kind === "dir" && node.children.length > 0,
+    children: open
+      ? node.children.map((c) => ({
+          ...c,
+          drill: c.kind === "dir" && c.children.length > 0,
+          open: false,
+          children: [],
+        }))
+      : [],
+  };
+}
+
+/** Parent's direct children stay on screen. Only `opened` is expanded one level. */
+export function contextView(root: MapTreeNode, opened: string): MapTreeNode {
+  if (!opened) return collapse(root, true);
+  const node = findMapNode(root, opened);
+  if (!node) return collapse(root, true);
+  const parentPath = opened.includes("/") ? opened.slice(0, opened.lastIndexOf("/")) : "";
+  const parent = parentPath ? findMapNode(root, parentPath) : root;
+  if (!parent) return collapse(root, true);
+  return {
+    ...parent,
+    children: parent.children.map((c) => collapse(c, c.path === opened)),
+  };
+}
+
 export function peerLinks(m: Model, rects: MapRect[], key: string, limit = 6): MapLink[] {
   const byPath = new Map(rects.map((r) => [r.path, r]));
   const here = byPath.get(key);

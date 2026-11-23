@@ -19,13 +19,16 @@ export interface Prefs {
   lang: "auto" | Lang;
   detail: Detail;
   view: MainView;
+  /** Set when the user picks Chain or Impact, so a later default does not override them. */
+  viewChosen?: boolean;
   treeCollapsed?: boolean;
 }
 
 /** Map legacy prefs.view `"ripple"` → `"map"`. */
 export function normalizePrefs(p: Prefs): Prefs {
-  const raw = String((p as { view?: string }).view ?? "chain");
-  const view: MainView = raw === "ripple" || raw === "map" ? "map" : "chain";
+  const raw = String((p as { view?: string }).view ?? "map");
+  const stored: MainView = raw === "chain" ? "chain" : "map";
+  const view: MainView = p.viewChosen ? stored : "map";
   return { ...p, view };
 }
 
@@ -88,7 +91,7 @@ export default function TopBar(p: Props) {
           ["chain", t.viewChain],
           ["map", t.viewMap],
         ]}
-        onChange={(v) => p.onPrefs({ ...p.prefs, view: v as MainView })}
+        onChange={(v) => p.onPrefs({ ...p.prefs, view: v as MainView, viewChosen: true })}
       />
       {p.focusLabel && (
         <div className="focus-chip">

@@ -52,7 +52,7 @@ export const CardNode = memo(function CardNode({ id, data }: NodeProps<Node<Card
     d.rows ? "" : "compact",
   ].join(" ");
   return (
-    <div className={cls} onMouseEnter={() => v.act.hover(d.ids)} onMouseLeave={() => v.act.hover(null)} title={d.path}>
+    <div className={cls} onMouseEnter={() => v.act.hover(d.ids, "file")} onMouseLeave={() => v.act.hover(null)} title={d.path}>
       <Handles sources={d.sources} targets={d.targets} />
       <div className="card-head" onClick={focusCard}>
         {d.kind === "changed" && <span className="lang" style={{ background: langColor(d.lang) }} />}

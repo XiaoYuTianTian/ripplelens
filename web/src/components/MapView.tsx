@@ -8,11 +8,10 @@ import {
   type TreeEntry,
 } from "../heat";
 import {
-  edgeAnchor,
+  contextView,
   labelFits,
   layoutTreemap,
   peerLinks,
-  pruneHeated,
   toMapTree,
   type MapLink,
   type MapRect,
@@ -26,7 +25,7 @@ interface Props {
   leftInset: number;
   onFocus: (f: Focus) => void;
   onOpenChain: (f: Focus) => void;
-  onHover: (ids: string[] | null) => void;
+  onHover: (ids: string[] | null, extent?: "file" | "chain") => void;
 }
 
 function focusPath(m: Model, focus: Focus): string | null {
@@ -56,6 +55,7 @@ export default function MapView(p: Props) {
   const [entries, setEntries] = useState<TreeEntry[] | null>(null);
   const [size, setSize] = useState({ w: 800, h: 600 });
   const [hoverPath, setHoverPath] = useState<string | null>(null);
+  const [scope, setScope] = useState("");
   const [menu, setMenu] = useState<{ path: string; x: number; y: number; focus: Focus } | null>(null);
 
   useEffect(() => {
@@ -82,22 +82,37 @@ export default function MapView(p: Props) {
     return () => ro.disconnect();
   }, []);
 
-  const files = useMemo(() => (entries ?? []).filter((e) => e.kind === "file").map((e) => e.path), [entries]);
+  const files = useMemo(() => {
+    const paths = new Set((entries ?? []).filter((e) => e.kind === "file").map((e) => e.path));
+    for (const f of p.model.rep.files) paths.add(f.path);
+    for (const n of p.model.rep.nodes) paths.add(n.path);
+    return [...paths];
+  }, [entries, p.model]);
   const heat = useMemo(() => heatMapForModel(p.model, files), [p.model, files]);
   const mapRoot = useMemo(() => {
     if (!entries) return null;
-    const tree = pruneHeated(buildTree(entries, heat));
-    return toMapTree(tree, (path) => p.model.groupOfPath(path));
-  }, [entries, heat, p.model]);
+    const known = new Set(entries.map((e) => e.path));
+    const extra: TreeEntry[] = files.filter((path) => !known.has(path)).map((path) => ({ path, kind: "file" }));
+    return toMapTree(buildTree([...entries, ...extra], heat), (path) => p.model.groupOfPath(path));
+  }, [entries, files, heat, p.model]);
+
+  const level = useMemo(() => (mapRoot ? contextView(mapRoot, scope) : null), [mapRoot, scope]);
 
   const rects = useMemo(() => {
-    if (!mapRoot) return [] as MapRect[];
-    return layoutTreemap(mapRoot, size.w, size.h);
-  }, [mapRoot, size]);
+    if (!level) return [] as MapRect[];
+    return layoutTreemap(level, size.w, Math.max(80, size.h - 36));
+  }, [level, size]);
 
   const byPath = useMemo(() => new Map(rects.map((r) => [r.path, r])), [rects]);
   const active = focusPath(p.model, p.focus);
   const focusKey = active && byPath.has(active) ? active : null;
+
+  useEffect(() => {
+    if (!active) return;
+    if (!p.focus || p.focus.type === "group" || p.focus.type === "overview") return;
+    const parent = active.includes("/") ? active.slice(0, active.lastIndexOf("/")) : "";
+    setScope(parent);
+  }, [p.focus, active]);
 
   const visibleLinks: MapLink[] = useMemo(() => {
     const key = hoverPath ?? focusKey;
@@ -108,6 +123,10 @@ export default function MapView(p: Props) {
 
   const clickRect = (r: MapRect) => {
     setMenu(null);
+    if (r.drill) {
+      setScope(r.path);
+      setHoverPath(null);
+    }
     const f =
       focusForPath(p.model, r.path) ??
       (r.kind === "dir" ? ({ type: "group", id: r.groupId, side: "impact" } as Focus) : null);
@@ -156,7 +175,20 @@ export default function MapView(p: Props) {
       ref={wrap}
       onClick={() => setMenu(null)}
     >
-      <div className="map-canvas" style={{ width: size.w, height: size.h }}>
+      <div className="map-crumbs">
+        <button type="button" className={!scope ? "on" : ""} onClick={() => setScope("")}>
+          {t.mapAll}
+        </button>
+        {scope.split("/").filter(Boolean).map((name, i, arr) => {
+          const path = arr.slice(0, i + 1).join("/");
+          return (
+            <button key={path} type="button" className={path === scope ? "on" : ""} onClick={() => setScope(path)}>
+              {name}
+            </button>
+          );
+        })}
+      </div>
+      <div className="map-canvas" style={{ width: size.w, height: Math.max(80, size.h - 36) }}>
         {ordered.map((r) => {
           const on = rectActive(r, active, p.focus);
           const hoverRoot = hoverPath ?? focusKey;
@@ -168,13 +200,13 @@ export default function MapView(p: Props) {
             <button
               key={`${r.kind}:${r.path || "."}`}
               type="button"
-              className={`map-cell heat-${r.heat} ${r.kind} depth-${Math.min(r.depth, 4)} ${on ? "active" : ""} ${linked.has(r.path) ? "linked" : ""} ${dim ? "dim" : ""}`}
+              className={`map-cell heat-${r.heat} ${r.kind} depth-${Math.min(r.depth, 4)} ${r.open ? "open" : ""} ${on ? "active" : ""} ${linked.has(r.path) ? "linked" : ""} ${dim ? "dim" : ""}`}
               style={{ left: r.x, top: r.y, width: r.w, height: r.h }}
               title={`${r.path || "."} · ${fmt(t.files, { n: r.weight })}`}
               onMouseEnter={() => {
                 setHoverPath(r.path);
                 const ids = p.model.rep.nodes.filter((n) => n.path === r.path || (r.path && n.path.startsWith(r.path + "/"))).map((n) => n.id);
-                p.onHover(ids.length ? ids : null);
+                p.onHover(ids.length ? ids : null, "file");
               }}
               onMouseLeave={() => {
                 setHoverPath(null);
@@ -201,36 +233,17 @@ export default function MapView(p: Props) {
               {showLabel && (
                 <span className="map-label">
                   <span className="map-name ellipsis">{r.name}</span>
-                  {r.w > 72 && r.kind === "dir" && <span className="map-count">{r.weight}</span>}
+                  {r.w > 72 && r.kind === "dir" && (
+                    <span className="map-count">
+                      {r.weight}
+                      {r.drill ? ` · ${t.mapEnter}` : ""}
+                    </span>
+                  )}
                 </span>
               )}
             </button>
           );
         })}
-        <svg className="map-wires" width={size.w} height={size.h}>
-          {visibleLinks.map((l) => {
-            const a = byPath.get(l.sourcePath);
-            const b = byPath.get(l.targetPath);
-            if (!a || !b) return null;
-            const ca = edgeAnchor(a, b);
-            const cb = edgeAnchor(b, a);
-            const midX = (ca.x + cb.x) / 2;
-            const midY = (ca.y + cb.y) / 2;
-            const dx = cb.x - ca.x;
-            const dy = cb.y - ca.y;
-            const len = Math.hypot(dx, dy) || 1;
-            const bend = Math.min(28, len * 0.15);
-            const cx = midX + (-dy / len) * bend;
-            const cy = midY + (dx / len) * bend;
-            return (
-              <path
-                key={l.id}
-                className={`map-wire ${l.soft ? "soft" : ""}`}
-                d={`M ${ca.x} ${ca.y} Q ${cx} ${cy} ${cb.x} ${cb.y}`}
-              />
-            );
-          })}
-        </svg>
       </div>
       {menu && (
         <div className="map-menu" style={{ left: menu.x, top: menu.y }} onClick={(e) => e.stopPropagation()}>

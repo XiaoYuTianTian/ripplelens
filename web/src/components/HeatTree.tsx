@@ -12,7 +12,7 @@ interface Props {
   collapsed: boolean;
   onToggleCollapsed: () => void;
   onFocus: (f: Focus) => void;
-  onHover: (ids: string[] | null) => void;
+  onHover: (ids: string[] | null, extent?: "file" | "chain") => void;
 }
 
 export default function HeatTree(p: Props) {
@@ -138,7 +138,7 @@ function Row({
   activePath: string | null;
   onToggle: (p: string) => void;
   onFocus: (f: Focus) => void;
-  onHover: (ids: string[] | null) => void;
+  onHover: (ids: string[] | null, extent?: "file" | "chain") => void;
   model: Model;
 }) {
   const open = node.kind === "dir" && expanded.has(node.path);
@@ -158,7 +158,7 @@ function Row({
         style={{ paddingLeft: 8 + depth * 14 }}
         data-path={node.path}
         onClick={onClick}
-        onMouseEnter={() => node.kind === "file" && onHover(entityIdsForPath(model, node.path))}
+        onMouseEnter={() => node.kind === "file" && onHover(entityIdsForPath(model, node.path), "file")}
         onMouseLeave={() => onHover(null)}
         title={node.path}
       >

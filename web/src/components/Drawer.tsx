@@ -1,6 +1,6 @@
 ﻿import { useEffect, useState, type ReactNode } from "react";
 import type { Focus, ImpactEdge, ImpactNode } from "../types";
-import { basename, CONTRACT, toneOf, whyPath, type Model } from "../model";
+import { basename, CONTRACT, toneOf, type Model } from "../model";
 import { fmt, useT } from "../i18n";
 import { Icon } from "../view";
 
@@ -44,120 +44,16 @@ function Details(p: Props) {
   if (!f || f.type === "overview") return <Overview {...p} />;
   if (f.type === "entity") {
     const n = m.byId.get(f.id);
-    return n ? <EntityView {...p} node={n} /> : <Overview {...p} />;
+    return n ? <FileDetail {...p} paths={[n.path]} focusId={n.id} /> : <Overview {...p} />;
   }
-  if (f.type === "unit") return <UnitView {...p} unitId={f.id} />;
-  if (f.type === "impactFile") return <ImpactFileView {...p} path={f.path} />;
+  if (f.type === "unit") {
+    const u = m.units.get(f.id);
+    return u ? <FileDetail {...p} paths={u.files.map((file) => file.path)} /> : <Overview {...p} />;
+  }
+  if (f.type === "impactFile") return <FileDetail {...p} paths={[f.path]} />;
   return <GroupView {...p} gid={f.id} side={f.side} />;
 }
 
-// ---------------------------------------------------------------------------- entity
-
-function EntityView({ model: m, node: n, onFocus, onPeek }: Props & { node: ImpactNode }) {
-  const t = useT();
-  const sig = n.signature;
-  const why = whyPath(m, n.id);
-  const upstream = m.inc.get(n.id) ?? [];
-  const downstream = (m.out.get(n.id) ?? []).filter((e) => m.byId.get(e.target) && !m.byId.get(e.target)!.change);
-  return (
-    <>
-      <div className="d-kicker">
-        {n.path}:{n.lines[0]} · {n.kind}
-        {!n.change && ` · ${fmt(t.depthN, { n: n.depth })}`}
-      </div>
-      <h2 className="d-title">
-        {n.change ? <span className={`tag tag-${toneOf(n.change)}`}>{t.change[n.change]}</span> : <span className={`dot ${n.depth > 1 ? "hollow" : ""}`} />}
-        <span className="mono">{n.qualname}</span>
-      </h2>
-      {n.change && <p className="d-hint">{t.sigHint[n.change]}</p>}
-      {n.renamed_from && (
-        <p className="d-hint">
-          ← <code>{n.renamed_from}</code>
-        </p>
-      )}
-      {sig && (sig.before || sig.after) && sig.before !== sig.after && (
-        <div className="sigdiff">
-          {sig.before && <div className="del">− {sig.before}</div>}
-          {sig.after && <div className="add">+ {sig.after}</div>}
-        </div>
-      )}
-      {n.breaking.length > 0 && (
-        <Section title={t.errorsHere} tone="danger">
-          {n.breaking.map((b, i) => (
-            <div key={i} className="caller has-error">
-              <div className="caller-head">
-                <span className="err-badge">{t.compileError}</span>
-                <span className="caller-file">
-                  {basename(n.path)}:{b.line}
-                </span>
-              </div>
-              <div className="err-msg">{b.message}</div>
-              <Snippet path={n.path} line={b.line} />
-            </div>
-          ))}
-        </Section>
-      )}
-      {!n.change && why.length > 1 && (
-        <Section title={t.why}>
-          <div className="whypath">
-            {why.map((s, i) => (
-              <span key={s.id} className="why-step">
-                {i > 0 && <span className="why-arrow">{t.via[s.via ?? "call"]} →</span>}
-                <button
-                  className={`why-chip ${s.change ? "why-seed" : ""}`}
-                  onMouseEnter={() => onPeek([s.id])}
-                  onMouseLeave={() => onPeek(null)}
-                  onClick={() => onFocus({ type: "entity", id: s.id })}
-                >
-                  {s.name}
-                </button>
-              </span>
-            ))}
-          </div>
-        </Section>
-      )}
-      {downstream.length > 0 && (
-        <Section title={n.change ? t.directCallers : t.downstream} count={downstream.length}>
-          {downstream
-            .sort((a, b) => m.byId.get(b.target)!.score - m.byId.get(a.target)!.score)
-            .slice(0, 40)
-            .map((e) => (
-              <Caller key={e.target + e.kind} edge={e} other={m.byId.get(e.target)!} onFocus={onFocus} onPeek={onPeek} />
-            ))}
-        </Section>
-      )}
-      {!n.change && upstream.length > 0 && (
-        <Section title={t.upstream} count={upstream.length}>
-          {upstream.map((e) => {
-            const src = m.byId.get(e.source);
-            return src ? <Caller key={e.source + e.kind} edge={e} other={src} sitesIn={n} onFocus={onFocus} onPeek={onPeek} /> : null;
-          })}
-        </Section>
-      )}
-      <div className="confidence">
-        <span className={`chip chip-${n.confidence}`}>
-          {t.confidence}: {t[n.confidence]}
-        </span>
-        {n.reasons.map((r) => (
-          <span key={r} className="reason">
-            {r}
-          </span>
-        ))}
-      </div>
-      {n.truncated &&
-        Object.entries(n.truncated).map(([k, v]) => (
-          <div key={k} className="callout callout-warn">
-            {t.truncation}: {k} {v.shown}/{v.total}
-          </div>
-        ))}
-      {n.notes?.map((x) => (
-        <div key={x} className="callout">
-          {x}
-        </div>
-      ))}
-    </>
-  );
-}
 
 function Caller({
   edge,
@@ -184,7 +80,6 @@ function Caller({
         <button className="link mono" onClick={() => onFocus({ type: "entity", id: other.id })}>
           {other.qualname}
         </button>
-        {other.confidence !== "precise" && <span className={`chip chip-${other.confidence}`}>{t[other.confidence]}</span>}
         <span className="caller-file">
           {basename(other.path)}:{other.lines[0]}
         </span>
@@ -203,75 +98,80 @@ function Caller({
 
 // ---------------------------------------------------------------------------- unit / file / group
 
-function UnitView({ model: m, unitId, onFocus, onPeek, reviewed, onToggleReviewed }: Props & { unitId: string }) {
+function FileDetail({ model: m, paths, focusId, onFocus, onPeek }: Props & { paths: string[]; focusId?: string }) {
   const t = useT();
-  const u = m.units.get(unitId);
-  if (!u) return null;
-  const g = m.groups.get(u.group);
-  const total = new Set(u.entities.flatMap((e) => [...m.down([e.id])].filter((d) => !m.byId.get(d)?.change))).size;
-  const done = reviewed.has(unitId);
+  const files = [...new Set(paths)];
+  useEffect(() => {
+    if (focusId) document.querySelector(`.drawer [data-entity="${CSS.escape(focusId)}"]`)?.scrollIntoView({ block: "nearest" });
+  }, [focusId]);
   return (
     <>
-      <div className="d-kicker">
-        {g?.module ? `${g.module} / ` : ""}
-        {g?.pkg}
-      </div>
-      <h2 className="d-title">
-        <span className="mono">{u.name}</span>
-      </h2>
-      <div className="file-list">
-        {u.files.map((f) => (
-          <div key={f.path} className="file-line">
-            <code>{f.path}</code>
-            <span className="plus">+{f.added}</span>
-            <span className="minus">−{f.removed}</span>
-          </div>
-        ))}
-      </div>
-      {u.files.flatMap((f) => f.degraded).map((d) => (
-        <div key={d} className="callout callout-warn">
-          {d}
-        </div>
-      ))}
-      <Section title={t.inThisUnit} count={u.entities.length}>
-        {u.entities.map((e) => (
-          <EntityLine key={e.id} m={m} n={e} onFocus={onFocus} onPeek={onPeek} />
-        ))}
-      </Section>
-      <p className="d-hint">{fmt(t.functions, { n: total })} · {t.impactAll}</p>
-      <div className="d-actions">
-        <button className={`btn ${done ? "" : "btn-primary"}`} onClick={() => onToggleReviewed(unitId)}>
-          {done ? t.unmarkReviewed : t.markReviewed}
-        </button>
-      </div>
+      {files.map((path) => {
+        const nodes = m.rep.nodes.filter((n) => n.path === path).sort((a, b) => Number(!!b.change) - Number(!!a.change) || a.lines[0] - b.lines[0]);
+        const changed = nodes.filter((n) => n.change);
+        const impacted = nodes.filter((n) => !n.change);
+        return (
+          <section key={path} className="file-detail">
+            <h2 className="d-title">
+              <span className="mono">{basename(path)}</span>
+            </h2>
+            <div className="file-list">
+              <code>{path}</code>
+            </div>
+            {changed.map((n) => (
+              <SymbolBlock key={n.id} m={m} n={n} focused={n.id === focusId} onFocus={onFocus} onPeek={onPeek} />
+            ))}
+            {impacted.length > 0 && (
+              <Section title={t.impactedFiles} count={impacted.length}>
+                {impacted.map((n) => (
+                  <div key={n.id} className={`symbol-block ${n.id === focusId ? "is-focus" : ""}`} data-entity={n.id}>
+                    <EntityLine m={m} n={n} onFocus={onFocus} onPeek={onPeek} extra={n.breaking[0]?.message} />
+                    {n.breaking[0] && <Snippet path={n.path} line={n.breaking[0].line} />}
+                  </div>
+                ))}
+              </Section>
+            )}
+          </section>
+        );
+      })}
     </>
   );
 }
 
-function ImpactFileView({ model: m, path, onFocus, onPeek }: Props & { path: string }) {
+function SymbolBlock({ m, n, focused, onFocus, onPeek }: { m: Model; n: ImpactNode; focused?: boolean; onFocus: (f: Focus) => void; onPeek: (ids: string[] | null) => void }) {
   const t = useT();
-  const nodes = m.rep.nodes.filter((n) => !n.change && n.path === path).sort((a, b) => a.depth - b.depth || b.score - a.score);
-  const g = m.groups.get(m.groupOfPath(path));
+  const sig = n.signature;
+  const downstream = (m.out.get(n.id) ?? []).filter((e) => m.byId.get(e.target) && !m.byId.get(e.target)!.change);
   return (
-    <>
-      <div className="d-kicker">
-        {g?.module ? `${g.module} / ` : ""}
-        {g?.pkg}
-      </div>
-      <h2 className="d-title">
-        <span className="mono">{basename(path)}</span>
-      </h2>
-      <div className="file-list">
-        <code>{path}</code>
-      </div>
-      <Section title={t.impactedFiles} count={nodes.length}>
-        {nodes.map((n) => (
-          <EntityLine key={n.id} m={m} n={n} onFocus={onFocus} onPeek={onPeek} extra={n.breaking[0]?.message} />
-        ))}
-      </Section>
-    </>
+    <div className={`symbol-block ${focused ? "is-focus" : ""}`} data-entity={n.id} onMouseEnter={() => onPeek([n.id])} onMouseLeave={() => onPeek(null)}>
+      <h3 className="d-sub">
+        {n.change && <span className={`tag tag-${toneOf(n.change)}`}>{t.change[n.change]}</span>}
+        <span className="mono">{n.qualname}</span>
+        <span className="muted">:{n.lines[0]}</span>
+      </h3>
+      {sig && (sig.before || sig.after) && sig.before !== sig.after && (
+        <div className="sigdiff">
+          {sig.before && <div className="del">− {sig.before}</div>}
+          {sig.after && <div className="add">+ {sig.after}</div>}
+        </div>
+      )}
+      {n.breaking.map((b, i) => (
+        <div key={i} className="err-msg">
+          {basename(n.path)}:{b.line} {b.message}
+        </div>
+      ))}
+      {downstream.length > 0 && (
+        <Section title={t.directCallers} count={downstream.length}>
+          {downstream.slice(0, 12).map((e) => {
+            const other = m.byId.get(e.target)!;
+            return <Caller key={e.target + e.kind} edge={e} other={other} onFocus={onFocus} onPeek={onPeek} />;
+          })}
+        </Section>
+      )}
+    </div>
   );
 }
+
 
 function GroupView({ model: m, gid, side, onFocus, onPeek }: Props & { gid: string; side: "changed" | "impact" }) {
   const t = useT();
