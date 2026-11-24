@@ -4,7 +4,8 @@
 
 `shop` is a three-module TypeScript monorepo (core / api / web) used for the README
 screenshots: a signature change with compile errors at two call sites, a constant change,
-a body change in a shared helper, and an Angular-style component spread over .ts/.html/.scss.
+a body change in a shared helper, an Angular-style component spread over .ts/.html/.scss,
+and a core -> api import that breaks the rules in .ripplelens/architecture.toml.
 """
 
 from __future__ import annotations
@@ -37,6 +38,17 @@ SHOP_EDITS: Edits = {
     ],
     "packages/core/src/cart/cart.ts": [
         ("applyDiscount(sub, this.discount.pct)", "applyDiscount(sub, this.discount)"),
+        (
+            'import { round } from "../pricing/money";',
+            'import { round } from "../pricing/money";\nimport { flashSale } from "../../../api/src/billing/promo";',
+        ),
+        (
+            "  setDiscount(d: Discount): void {",
+            "  saleTotal(): number {\n"
+            "    return round(flashSale(this.lines.map((l) => l.price * l.qty)).reduce((s, p) => s + p, 0));\n"
+            "  }\n\n"
+            "  setDiscount(d: Discount): void {",
+        ),
     ],
     "packages/core/src/pricing/discount.spec.ts": [
         ("applyDiscount(100, 10) === 90", 'applyDiscount(100, { code: "T", pct: 10 }) === 90'),

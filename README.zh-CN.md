@@ -32,6 +32,8 @@ RippleLens 读取 git diff，找出你改过的函数、方法、类型和常量
 uvx --from git+https://github.com/XiaoYuTianTian/ripplelens.git ripplelens
 cd your-repo
 ripplelens doctor                # 检查语言服务器与项目需求
+
+混合仓库（Java 子模块 + 前端子目录、Lombok、未跟踪文件过滤）见 [docs/mixed-repos.md](docs/mixed-repos.md)。
 ripplelens review                # 分析工作区改动并打开评审界面
 ```
 

@@ -34,6 +34,8 @@ an AI reviewer through MCP.
 uvx --from git+https://github.com/XiaoYuTianTian/ripplelens.git ripplelens
 cd your-repo
 ripplelens doctor                # which servers are installed, what the project needs
+
+For Java + frontend subprojects, Lombok, and untracked-noise filtering, see [docs/mixed-repos.md](docs/mixed-repos.md).
 ripplelens review                # analyze working-tree changes and open the UI
 ```
 

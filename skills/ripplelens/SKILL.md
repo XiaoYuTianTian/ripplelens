@@ -1,6 +1,6 @@
 ---
 name: ripplelens
-description: Find which functions a code change actually affects (callers, overriders, users of changed constants) and any compile errors it causes at those call sites, using compiler-backed language servers. Use before declaring a change in Java, Go, TypeScript/JavaScript, Python, C or C++ done, when reviewing a diff or pull request, or when the user asks what a change could break or what its blast radius is.
+description: Find which functions a code change actually affects (callers, overriders, users of changed constants) and any compile errors it causes at those call sites, using compiler-backed language servers. Use before declaring a change in Java, Go, TypeScript/JavaScript, Python, C or C++ done, when reviewing a diff or pull request (including its architecture: new module dependencies, layering, cycles, contracts other modules rely on), or when the user asks what a change could break or what its blast radius is.
 ---
 
 # ripplelens
@@ -23,7 +23,33 @@ implementations and overriders. Results are evidence from the compiler's own ind
    not rely on the old behavior (return values, errors raised, side effects, ordering).
 5. Use `explain(from_symbol, to_symbol)` when you need to tell the user why something is impacted.
 6. Use `get_review_context(budget_tokens)` when you need a compact summary for a review comment.
-7. Call `open_review_ui` only when the user wants to look at the impact visually.
+7. When reviewing a change (not just checking it), call `get_architecture` and go through the
+   architecture checklist below, then `submit_review` so the human reviewer sees your findings in the UI.
+8. Call `open_review_ui` when the user wants to look at the impact visually, and after `submit_review`.
+
+## Architecture checklist
+
+`get_architecture` returns computed evidence; use it, do not infer structure from file names alone.
+
+- `violations`: an added dependency breaks `.ripplelens/architecture.toml` (`deny` rule or a lower layer
+  importing a higher one). Always a finding.
+- `cycles`: the diff adds a dependency that closes a module cycle. Always a finding.
+- `deps_added` with `cross_module` or `external`: ask whether the direction fits the structure. Typical
+  problems: a core/shared module importing a feature or app module; one feature module reaching into
+  another's internals instead of its public entry; a new third-party dependency inside a core module.
+- `deps_removed`: usually good; check nothing still relies on what the removed import provided.
+- `contracts` with `external_modules`: a signature, constant or type other modules depend on. Count the
+  modules and compile errors; a change confined to one module that breaks callers in several modules is a
+  coupling signal worth naming.
+- Without a rules file (`rules` is null) there are no violations by definition: phrase dependency
+  findings as suggestions and suggest adding a rules file when the structure is clear.
+
+## Submitting a pre-review
+
+`submit_review(summary, verdict, findings)` stores the review in the repository's git directory; the review
+UI shows it, and the human accepts or rejects each finding. Each finding needs `file` and `line` from tool
+output, `kind` (`architecture`, `contract` or `behavior`), `scope` (the module or package directory), the
+`evidence` that proves it, and a concrete `suggestion`. Do not submit style or naming comments.
 
 ## Reading the results
 

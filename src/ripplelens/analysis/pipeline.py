@@ -51,7 +51,8 @@ def analyze(
         cur = gitdiff.rev_parse(spec.repo, "HEAD")
         if not (cur == spec.head and not gitdiff.is_dirty(spec.repo)):
             head_root = worktree_for(spec.repo, spec.head)
-    say(f"comparing {spec.base_label} ({spec.base[:10]}) .. {spec.head_label}: {len(spec.files)} files")
+    extra = f", skipped {spec.untracked_skipped} untracked noise paths" if spec.untracked_skipped else ""
+    say(f"comparing {spec.base_label} ({spec.base[:10]}) .. {spec.head_label}: {len(spec.files)} files{extra}")
 
     groups: dict[str, list[gitdiff.FileDiff]] = {}
     unsupported: list[gitdiff.FileDiff] = []
@@ -146,8 +147,17 @@ def analyze(
                 n.limit = 0
                 continue
             seeds.append((trav.add_seed(h, ch), h))
-    say(f"tracing callers of {len(seeds)} seeds ...")
-    trav.run(seeds)
+    say(f"tracing callers of {len(seeds)} seeds (node budget {opt.max_nodes}) ...")
+    if len(seeds) > opt.max_nodes:
+        trav.traversal_skipped = True
+        msg = (
+            f"changed-entity count ({len(seeds)}) exceeds --max-nodes ({opt.max_nodes}); "
+            "impact traversal was not run — increase --max-nodes or narrow the diff"
+        )
+        trav.warnings.insert(0, msg)
+        say(f"WARNING: {msg}")
+    else:
+        trav.run(seeds, on_progress=say)
     trav.check_breakage(handles)
     report = build_report(
         spec=spec,
@@ -158,16 +168,53 @@ def analyze(
         options=opt,
         seconds=time.monotonic() - t_start,
     )
+    report["architecture"] = architecture_of(spec, head_root, report)
     if own_pool:
         pool.shutdown()
-    say(f"done in {report['timing']['total_seconds']}s: {report['summary']['impacted']} impacted entities")
+    imp = report["summary"]["impacted"]
+    if report["summary"].get("impact_analyzed") is False:
+        say(f"done in {report['timing']['total_seconds']}s: impact not analyzed (see warnings)")
+    else:
+        say(f"done in {report['timing']['total_seconds']}s: {imp} impacted entities")
     return report
 
 
+def architecture_of(spec: gitdiff.DiffSpec, head_root: Path, report: dict[str, Any]) -> dict[str, Any] | None:
+    from ..repo_tree import list_repo_files
+    from .architecture import analyze_architecture
+
+    def read_head(rel: str) -> str | None:
+        try:
+            return (head_root / rel).read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            return None
+
+    try:
+        return analyze_architecture(
+            repo_root=spec.repo,
+            head_root=head_root,
+            files=report["files"],
+            nodes=report["nodes"],
+            edges=report["edges"],
+            read_base=lambda rel: gitdiff.read_base(spec.repo, spec.base, rel),
+            read_head=read_head,
+            repo_files=list_repo_files(head_root),
+        )
+    except Exception as e:  # noqa: BLE001 - architecture evidence is optional; never fail the impact report
+        log.warning("architecture analysis failed: %s", e)
+        report["warnings"].append(f"architecture analysis failed: {e}")
+        return None
+
+
 def project_notes(sspec: ServerSpec, root: Path) -> list[str]:
+    from ..lsp.registry import ts_project_roots
+
     notes = []
     for need in sspec.needs:
         alts = need.split("|")
-        if not any((root / a).exists() or (root / "build" / a).exists() for a in alts):
+        found = any((root / a).exists() or (root / "build" / a).exists() for a in alts)
+        if not found and sspec.name == "typescript":
+            found = any((pr / a).exists() for pr in ts_project_roots(root) for a in alts if a.endswith(".json"))
+        if not found:
             notes.append(f"missing {' or '.join(alts)} at the repository root; results may be incomplete")
     return notes

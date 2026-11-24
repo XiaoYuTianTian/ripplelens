@@ -1,14 +1,20 @@
 ﻿import { useEffect, useState, type ReactNode } from "react";
 import type { Focus, ImpactEdge, ImpactNode } from "../types";
 import { basename, CONTRACT, toneOf, type Model } from "../model";
+import { focusForPath } from "../heat";
 import { fmt, useT } from "../i18n";
 import { Icon } from "../view";
+import { AgentReviewPanel, FindingItem, type AgentReviewState } from "../review/AgentReview";
+import { ArchInFile, ArchOverview } from "../review/Architecture";
+
+export type DrawerTab = "details" | "review" | "ai";
 
 interface Props {
   model: Model;
   focus: Focus;
-  tab: "details" | "ai";
-  onTab: (t: "details" | "ai") => void;
+  tab: DrawerTab;
+  onTab: (t: DrawerTab) => void;
+  review: AgentReviewState;
   onFocus: (f: Focus) => void;
   onPeek: (ids: string[] | null) => void;
   onClose: () => void;
@@ -26,6 +32,10 @@ export default function Drawer(p: Props) {
         <button className={p.tab === "details" ? "on" : ""} onClick={() => p.onTab("details")}>
           {t.details}
         </button>
+        <button className={p.tab === "review" ? "on" : ""} onClick={() => p.onTab("review")}>
+          {t.rv.tab}
+          {p.review.review && p.review.review.counts.open > 0 && <span className="beta">{p.review.review.counts.open}</span>}
+        </button>
         <button className={p.tab === "ai" ? "on" : ""} onClick={() => p.onTab("ai")}>
           <Icon name="spark" size={12} /> {t.aiReview} {p.aiBadge}
         </button>
@@ -34,7 +44,22 @@ export default function Drawer(p: Props) {
           <Icon name="close" size={14} />
         </button>
       </div>
-      <div className="drawer-body">{p.tab === "details" ? <Details {...p} /> : p.ai}</div>
+      <div className="drawer-body">
+        {p.tab === "details" ? (
+          <Details {...p} />
+        ) : p.tab === "review" ? (
+          <AgentReviewPanel
+            model={p.model}
+            state={p.review}
+            onFocus={(f) => {
+              p.onFocus(f);
+              p.onTab("details");
+            }}
+          />
+        ) : (
+          p.ai
+        )}
+      </div>
     </aside>
   );
 }
@@ -98,7 +123,7 @@ function Caller({
 
 // ---------------------------------------------------------------------------- unit / file / group
 
-function FileDetail({ model: m, paths, focusId, onFocus, onPeek }: Props & { paths: string[]; focusId?: string }) {
+function FileDetail({ model: m, paths, focusId, onFocus, onPeek, review }: Props & { paths: string[]; focusId?: string }) {
   const t = useT();
   const files = [...new Set(paths)];
   useEffect(() => {
@@ -118,6 +143,8 @@ function FileDetail({ model: m, paths, focusId, onFocus, onPeek }: Props & { pat
             <div className="file-list">
               <code>{path}</code>
             </div>
+            <FileFindings m={m} path={path} review={review} onFocus={onFocus} />
+            <ArchInFile arch={m.rep.architecture} path={path} />
             {changed.map((n) => (
               <SymbolBlock key={n.id} m={m} n={n} focused={n.id === focusId} onFocus={onFocus} onPeek={onPeek} />
             ))}
@@ -135,6 +162,19 @@ function FileDetail({ model: m, paths, focusId, onFocus, onPeek }: Props & { pat
         );
       })}
     </>
+  );
+}
+
+function FileFindings({ m, path, review, onFocus }: { m: Model; path: string; review: AgentReviewState; onFocus: (f: Focus) => void }) {
+  const t = useT();
+  const here = (review.review?.findings ?? []).filter((f) => f.path === path);
+  if (!here.length) return null;
+  return (
+    <Section title={t.rv.inFile} count={here.length}>
+      {here.map((f) => (
+        <FindingItem key={f.id} f={f} model={m} onFocus={onFocus} onUpdate={review.update} compact />
+      ))}
+    </Section>
   );
 }
 
@@ -216,6 +256,13 @@ function Overview({ model: m, onFocus, onPeek }: Props) {
     <>
       <h2 className="d-title">{t.overview}</h2>
       <p className="d-hint">{t.overviewHint}</p>
+      <ArchOverview
+        arch={rep.architecture}
+        onOpen={(path) => {
+          const f = focusForPath(m, path);
+          if (f) onFocus(f);
+        }}
+      />
       {errors.length > 0 && (
         <Section title={t.errorsHere} count={errors.length} tone="danger">
           {errors.map((n) => (
@@ -230,8 +277,22 @@ function Overview({ model: m, onFocus, onPeek }: Props) {
           ))}
         </Section>
       )}
+      {rep.summary.impact_analyzed === false && (
+        <div className="callout callout-warn">
+          <Icon name="warn" size={12} /> {t.impactNotAnalyzed}
+        </div>
+      )}
+      {rep.summary.impacted_by_via && Object.keys(rep.summary.impacted_by_via).length > 0 && (
+        <p className="d-hint">
+          {t.impactByVia}:{" "}
+          {Object.entries(rep.summary.impacted_by_via)
+            .sort((a, b) => b[1] - a[1])
+            .map(([k, n]) => `${k} ${n}`)
+            .join(" · ")}
+        </p>
+      )}
       {top.length > 0 ? (
-        <Section title={t.impactAll} count={rep.summary.impacted}>
+        <Section title={t.impactAll} count={rep.summary.impacted ?? top.length}>
           {top.map((n) => (
             <EntityLine key={n.id} m={m} n={n} onFocus={onFocus} onPeek={onPeek} />
           ))}

@@ -239,8 +239,59 @@ class ServerSpec:
         return self.extension_to_language.get(Path(path).suffix.lower())
 
 
+def ts_project_roots(root: Path, limit: int = 24) -> list[Path]:
+    """Directories that look like TypeScript project roots (nearest ts/jsconfig)."""
+    found: list[Path] = []
+    seen: set[str] = set()
+
+    def add(p: Path) -> None:
+        key = str(p.resolve()).lower()
+        if key not in seen:
+            seen.add(key)
+            found.append(p)
+
+    if (root / "tsconfig.json").is_file() or (root / "jsconfig.json").is_file() or (root / "package.json").is_file():
+        add(root)
+    try:
+        for cfg in sorted(root.rglob("tsconfig.json")):
+            if len(found) >= limit:
+                break
+            if any(x in cfg.parts for x in ("node_modules", "dist", "build", ".git")):
+                continue
+            add(cfg.parent)
+        for cfg in sorted(root.rglob("jsconfig.json")):
+            if len(found) >= limit:
+                break
+            if any(x in cfg.parts for x in ("node_modules", "dist", "build", ".git")):
+                continue
+            add(cfg.parent)
+    except OSError:
+        pass
+    return found
+
+
+def typescript_package_version(pkg: Path) -> str | None:
+    manifest = pkg / "package.json"
+    if not manifest.is_file():
+        return None
+    try:
+        return str(json.loads(manifest.read_text(encoding="utf-8")).get("version") or "")
+    except (OSError, json.JSONDecodeError):
+        return None
+
+
 def _ts_package_dirs(root: Path, server_exe: str | None) -> list[Path]:
-    dirs = [root / "node_modules" / "typescript"]
+    dirs: list[Path] = []
+    seen: set[str] = set()
+    for pr in ts_project_roots(root):
+        d = pr / "node_modules" / "typescript"
+        k = str(d).lower()
+        if k not in seen:
+            dirs.append(d)
+            seen.add(k)
+    d0 = root / "node_modules" / "typescript"
+    if str(d0).lower() not in seen:
+        dirs.insert(0, d0)
     if server_exe:
         exe = Path(server_exe).resolve()
         dirs += [
@@ -277,7 +328,10 @@ def find_native_tsc(root: Path, server_exe: str | None) -> list[str] | None:
 
 def find_tsserver(root: Path, server_exe: str | None) -> str | None:
     """Prefer the project's own TypeScript, then the one installed next to the server."""
-    candidates = [root / "node_modules" / "typescript" / "lib"]
+    candidates: list[Path] = []
+    for pr in ts_project_roots(root):
+        candidates.append(pr / "node_modules" / "typescript" / "lib")
+    candidates.append(root / "node_modules" / "typescript" / "lib")
     if server_exe:
         exe = Path(server_exe).resolve()
         # <prefix>/node_modules/.bin/typescript-language-server(.cmd)

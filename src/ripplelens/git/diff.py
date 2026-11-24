@@ -8,6 +8,8 @@ import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from .untracked_skip import should_skip_untracked
+
 
 class GitError(Exception):
     pass
@@ -103,6 +105,7 @@ class DiffSpec:
     head: str | None  # commit sha, or None for the working tree
     head_label: str
     files: list[FileDiff]
+    untracked_skipped: int = 0
 
 
 _HUNK = re.compile(r"^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@")
@@ -189,12 +192,24 @@ def resolve(repo: str | Path, base: str | None = None, head: str | None = None) 
             raise GitError(f"unknown base ref: {base}")
         mb = git(root, "merge-base", b, head_sha or "HEAD", check=False).strip()
         base_sha, base_label = (mb or b), base
-    args = ["diff", "--no-color", "--no-ext-diff", "-U0", "-M", "--src-prefix=a/", "--dst-prefix=b/", base_sha]
+    args = [
+        "diff",
+        "--no-color",
+        "--no-ext-diff",
+        "-U0",
+        "-M",
+        "--ignore-cr-at-eol",
+        "--src-prefix=a/",
+        "--dst-prefix=b/",
+        base_sha,
+    ]
     if head_sha:
         args.append(head_sha)
     files = parse_unified(git(root, *args))
+    skipped = 0
     if head_sha is None:
-        files += _untracked(root)
+        extra, skipped = _untracked(root)
+        files += extra
     return DiffSpec(
         repo=root,
         base=base_sha,
@@ -202,6 +217,7 @@ def resolve(repo: str | Path, base: str | None = None, head: str | None = None) 
         head=head_sha,
         head_label=head or "working tree",
         files=files,
+        untracked_skipped=skipped,
     )
 
 
@@ -218,10 +234,16 @@ def _generated(rel: str) -> bool:
     return name in _GENERATED_FILES or name.endswith(".class")
 
 
-def _untracked(root: Path) -> list[FileDiff]:
-    out = []
+def _untracked(root: Path) -> tuple[list[FileDiff], int]:
+    out: list[FileDiff] = []
+    skipped = 0
     for rel in git(root, "ls-files", "--others", "--exclude-standard", "-z").split("\0"):
-        if not rel or _generated(rel):
+        if not rel:
+            continue
+        if should_skip_untracked(rel):
+            skipped += 1
+            continue
+        if _generated(rel):
             continue
         p = root / rel
         try:
@@ -229,7 +251,7 @@ def _untracked(root: Path) -> list[FileDiff]:
         except OSError:
             continue
         out.append(FileDiff(status="A", old_path=None, new_path=rel, hunks=[Hunk(0, 0, 1, n)] if n else []))
-    return out
+    return out, skipped
 
 
 def read_base(repo: Path, sha: str, rel: str) -> str | None:

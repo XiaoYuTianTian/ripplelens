@@ -64,6 +64,16 @@ def cmd_review(args: argparse.Namespace) -> int:
 
     say = lambda m: print(f"ripplelens: {m}", file=sys.stderr)
     rep = analyze(args.repo, args.base, args.head, _options(args), progress=say)
+    if args.export:
+        from . import review_store
+
+        text = review_store.to_markdown(review_store.load(rep["repo"]["root"]), rep)
+        if args.export == "-":
+            sys.stdout.write(text + "\n")
+        else:
+            Path(args.export).write_text(text, encoding="utf-8")
+            say(f"wrote {args.export}")
+        return 0
     serve(rep, port=args.port, open_browser=not args.no_open, block=True)
     return 0
 
@@ -124,7 +134,9 @@ def cmd_hook(args: argparse.Namespace) -> int:
         s = rep["summary"]
         if s["entities_changed"]:
             msg = (
-                f"ripplelens: {s['entities_changed']} changed, {s['impacted']} impacted in {s['impacted_files']} files, "
+                f"ripplelens: {s['entities_changed']} changed, "
+                f"{s['impacted'] if s.get('impact_analyzed', True) else 'n/a (not analyzed)'} impacted in "
+                f"{s['impacted_files'] if s.get('impact_analyzed', True) else 'n/a'} files, "
                 f"{s['breaking']} with compile errors"
             )
             print(json.dumps({"systemMessage": msg}))
@@ -161,6 +173,7 @@ def main(argv: list[str] | None = None) -> int:
     _add_diff_args(p)
     p.add_argument("--port", type=int, default=0, help="HTTP port (default: random free port)")
     p.add_argument("--no-open", action="store_true", help="do not open a browser")
+    p.add_argument("--export", metavar="FILE", help="write the agent pre-review and human verdicts as Markdown to FILE ('-' for stdout) instead of serving the UI")
     p.set_defaults(fn=cmd_review)
 
     p = sub.add_parser("view", help="open the review UI for an existing impact.json")

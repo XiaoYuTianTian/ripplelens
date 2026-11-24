@@ -49,6 +49,7 @@ interface Props {
   menu: string | null;
   onMenu: (m: string | null) => void;
   aiButton: ReactNode;
+  reviewChip: ReactNode;
 }
 
 export default function TopBar(p: Props) {
@@ -75,8 +76,8 @@ export default function TopBar(p: Props) {
           <i>{fmt(t.filesChanged, { n: s.files_changed })}</i>
         </span>
         <span className="metric metric-impact">
-          <b>{s.impacted}</b>
-          <i>{fmt(t.impactedFns, { n: s.impacted })}</i>
+          <b>{s.impact_analyzed === false ? "—" : (s.impacted ?? 0)}</b>
+          <i>{s.impact_analyzed === false ? t.impactNotAnalyzedShort : fmt(t.impactedFns, { n: s.impacted ?? 0 })}</i>
         </span>
         {s.breaking > 0 && (
           <button className="metric metric-error" onClick={() => p.onFocus({ type: "overview" })}>
@@ -124,6 +125,7 @@ export default function TopBar(p: Props) {
         </button>
         {p.menu === "filters" && <FiltersPop filters={p.filters} onChange={p.onFilters} />}
       </div>
+      {p.reviewChip}
       {p.aiButton}
       <div className="pop-anchor">
         <button className="icon-btn" title={`${t.help} (?)`} onClick={() => toggle("help")}>

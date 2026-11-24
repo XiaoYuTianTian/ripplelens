@@ -1,0 +1,7 @@
+# Architecture rules for the shop demo. Top layer first: a module may only depend on layers below it.
+layers = ["apps/*", "packages/api", "packages/core"]
+
+[[deny]]
+from = "packages/core"
+to = ["packages/api", "apps/*"]
+reason = "core holds pricing rules only and must not know about billing or the web app"

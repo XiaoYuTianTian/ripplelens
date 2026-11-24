@@ -104,7 +104,7 @@ def test_mcp_stdio_session(tmp_path):
         async with stdio_client(params) as (r, w), ClientSession(r, w) as s:
             await s.initialize()
             names = {t.name for t in (await s.list_tools()).tools}
-            assert names >= {"analyze_diff", "get_impact", "explain", "get_review_context", "open_review_ui"}
+            assert names >= {"analyze_diff", "get_impact", "explain", "get_review_context", "get_architecture", "submit_review", "open_review_ui"}
 
             first = payload(await s.call_tool("analyze_diff", {}))
             assert first["reanalyzed"] is True
@@ -125,6 +125,14 @@ def test_mcp_stdio_session(tmp_path):
 
             ctx = payload(await s.call_tool("get_review_context", {"budget_tokens": 500}))
             assert "CHANGED[signature] helper" in ctx
+
+            arch = payload(await s.call_tool("get_architecture", {}))
+            assert "deps_added" in arch and arch["summary"]["has_rules"] is False and "rules_hint" in arch
+            finding = {"severity": "high", "kind": "contract", "title": "callers not updated", "file": "fx/app.py", "line": 4,
+                       "evidence": "compile error", "suggestion": "pass y"}
+            sub = payload(await s.call_tool("submit_review", {"summary": "s", "verdict": "request_changes", "findings": [finding]}))
+            assert sub["findings"]["total"] == 1 and sub["findings"]["open"] == 1
+            assert (repo / ".git" / "ripplelens" / "review.json").is_file()
 
             # fix one caller: the warm server must see the edit and the error must go away
             app = repo / "fx" / "app.py"

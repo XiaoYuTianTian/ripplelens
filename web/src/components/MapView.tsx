@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { Focus } from "../types";
+import type { Focus, Severity } from "../types";
+import { SEV_RANK } from "../review/AgentReview";
 import type { Model } from "../model";
 import {
   buildTree,
@@ -23,6 +24,8 @@ interface Props {
   model: Model;
   focus: Focus;
   leftInset: number;
+  rightInset: number;
+  findings: Map<string, { n: number; sev: Severity }>;
   onFocus: (f: Focus) => void;
   onOpenChain: (f: Focus) => void;
   onHover: (ids: string[] | null, extent?: "file" | "chain") => void;
@@ -40,6 +43,19 @@ function focusPath(m: Model, focus: Focus): string | null {
     return hit?.path ?? null;
   }
   return null;
+}
+
+const within = (path: string, root: string) => !root || path === root || path.startsWith(`${root}/`);
+
+function badgeOf(r: MapRect, findings: Props["findings"]): { n: number; sev: Severity } | null {
+  let n = 0;
+  let sev: Severity = "low";
+  for (const [key, v] of findings) {
+    if (!within(key, r.path)) continue;
+    n += v.n;
+    if (SEV_RANK[v.sev] < SEV_RANK[sev]) sev = v.sev;
+  }
+  return n ? { n, sev } : null;
 }
 
 function rectActive(r: MapRect, active: string | null, focus: Focus): boolean {
@@ -120,6 +136,20 @@ export default function MapView(p: Props) {
     return peerLinks(p.model, rects, key, 6);
   }, [p.model, rects, hoverPath, focusKey]);
   const linked = useMemo(() => new Set(visibleLinks.flatMap((l) => [l.sourcePath, l.targetPath])), [visibleLinks]);
+  const badges = useMemo(() => new Map(rects.map((r) => [r.path, badgeOf(r, p.findings)])), [rects, p.findings]);
+  const violated = useMemo(() => {
+    const key = hoverPath ?? focusKey;
+    const out = new Set<string>();
+    if (key === null) return out;
+    for (const v of p.model.rep.architecture?.violations ?? []) {
+      if (!within(v.file, key)) continue;
+      const to = v.to === "." ? "" : v.to;
+      let best: MapRect | null = null;
+      for (const r of rects) if (within(to, r.path) && (!best || r.path.length > best.path.length)) best = r;
+      if (best && !within(v.file, best.path)) out.add(best.path);
+    }
+    return out;
+  }, [p.model, rects, hoverPath, focusKey]);
 
   const clickRect = (r: MapRect) => {
     setMenu(null);
@@ -149,7 +179,7 @@ export default function MapView(p: Props) {
 
   if (!entries) {
     return (
-      <div className="map-board" style={{ marginLeft: p.leftInset }} ref={wrap}>
+      <div className="map-board" style={{ marginLeft: p.leftInset, marginRight: p.rightInset }} ref={wrap}>
         <div className="map-empty">
           <div className="spinner" /> {t.loading}
         </div>
@@ -159,7 +189,7 @@ export default function MapView(p: Props) {
 
   if (!rects.length) {
     return (
-      <div className="map-board" style={{ marginLeft: p.leftInset }} ref={wrap}>
+      <div className="map-board" style={{ marginLeft: p.leftInset, marginRight: p.rightInset }} ref={wrap}>
         <div className="map-empty">{t.noChanges}</div>
       </div>
     );
@@ -171,7 +201,7 @@ export default function MapView(p: Props) {
   return (
     <div
       className="map-board"
-      style={{ marginLeft: p.leftInset }}
+      style={{ marginLeft: p.leftInset, marginRight: p.rightInset }}
       ref={wrap}
       onClick={() => setMenu(null)}
     >
@@ -194,15 +224,17 @@ export default function MapView(p: Props) {
           const hoverRoot = hoverPath ?? focusKey;
           const inHover =
             !!hoverRoot && (r.path === hoverRoot || r.path.startsWith(`${hoverRoot}/`) || hoverRoot.startsWith(`${r.path}/`));
-          const dim = !!hoverRoot && !on && !inHover && !linked.has(r.path);
+          const bad = violated.has(r.path);
+          const dim = !!hoverRoot && !on && !inHover && !linked.has(r.path) && !bad;
           const showLabel = labelFits(r);
+          const badge = badges.get(r.path);
           return (
             <button
               key={`${r.kind}:${r.path || "."}`}
               type="button"
-              className={`map-cell heat-${r.heat} ${r.kind} depth-${Math.min(r.depth, 4)} ${r.open ? "open" : ""} ${on ? "active" : ""} ${linked.has(r.path) ? "linked" : ""} ${dim ? "dim" : ""}`}
+              className={`map-cell heat-${r.heat} ${r.kind} depth-${Math.min(r.depth, 4)} ${r.open ? "open" : ""} ${on ? "active" : ""} ${linked.has(r.path) ? "linked" : ""} ${dim ? "dim" : ""} ${bad ? "violation" : ""}`}
               style={{ left: r.x, top: r.y, width: r.w, height: r.h }}
-              title={`${r.path || "."} · ${fmt(t.files, { n: r.weight })}`}
+              title={`${r.path || "."} · ${fmt(t.files, { n: r.weight })}${badge ? ` · ${t.rv.chip} ${fmt(t.rv.chipCount, { n: badge.n })}` : ""}${bad ? ` · ${t.arch.violations}` : ""}`}
               onMouseEnter={() => {
                 setHoverPath(r.path);
                 const ids = p.model.rep.nodes.filter((n) => n.path === r.path || (r.path && n.path.startsWith(r.path + "/"))).map((n) => n.id);
@@ -239,6 +271,11 @@ export default function MapView(p: Props) {
                       {r.drill ? ` · ${t.mapEnter}` : ""}
                     </span>
                   )}
+                </span>
+              )}
+              {badge && r.w > 28 && r.h > 18 && (
+                <span className={`map-badge sev-${badge.sev}`}>
+                  {badge.n}
                 </span>
               )}
             </button>

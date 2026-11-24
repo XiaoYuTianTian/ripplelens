@@ -19,7 +19,7 @@ import time
 from collections import deque
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from ..lsp.client import LspError, LspTimeout, norm_path, true_case, uri_to_path
 from ..lsp.pool import ServerHandle
@@ -121,6 +121,7 @@ class Traversal:
         self.edges: dict[tuple[str, str, str], Edge] = {}
         self.truncation: list[dict[str, Any]] = []
         self.warnings: list[str] = []
+        self.traversal_skipped = False
         self._indexes: dict[tuple[str, str], SymbolIndex] = {}
         self._texts: dict[str, list[str]] = {}
         self.stats = {"requests": 0, "request_seconds": 0.0, "timeouts": 0}
@@ -243,10 +244,15 @@ class Traversal:
             n.degrade(f"{handle.name} not fully ready: {handle.ready_reason}")
         return n
 
+    def budget_nodes(self) -> int:
+        """Nodes that count toward max_nodes (whitespace-only seeds are excluded)."""
+        return sum(1 for n in self.nodes.values() if n.change != C.COSMETIC)
+
     # ------------------------------------------------------------------ traversal
-    def run(self, seeds: list[tuple[Node, ServerHandle]]) -> None:
+    def run(self, seeds: list[tuple[Node, ServerHandle]], on_progress: Callable[[str], None] | None = None) -> None:
         handles = {n.id: h for n, h in seeds}
         queue: deque[str] = deque(n.id for n, _ in sorted(seeds, key=lambda s: -s[0].score))
+        seen_req = 0
         while queue:
             nid = queue.popleft()
             node = self.nodes[nid]
@@ -258,7 +264,7 @@ class Traversal:
             if node.score * DECAY < self.opt.min_score:
                 self.truncation.append({"at": node.id, "reason": "min_score", "score": round(node.score, 3)})
                 continue
-            if len(self.nodes) >= self.opt.max_nodes:
+            if self.budget_nodes() >= self.opt.max_nodes:
                 self.truncation.append({"at": node.id, "reason": "budget", "max_nodes": self.opt.max_nodes})
                 continue
             handle = handles[nid]
@@ -279,6 +285,10 @@ class Traversal:
                 handles.setdefault(child.id, h2)
                 if child.change is None and not child.expanded:
                     queue.append(child.id)
+            if on_progress and self.stats["requests"] - seen_req >= 25:
+                seen_req = self.stats["requests"]
+                impacted = sum(1 for n in self.nodes.values() if n.change is None)
+                on_progress(f"traversal: {self.stats['requests']} LSP requests, {impacted} impacted entities")
 
     def expand(self, node: Node, handle: ServerHandle) -> list[tuple[Node, str, ServerHandle]]:
         out: list[tuple[Node, str, ServerHandle]] = []

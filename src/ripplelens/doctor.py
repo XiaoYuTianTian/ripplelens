@@ -13,7 +13,26 @@ from pathlib import Path
 from typing import Any
 
 from .lsp.pool import ServerPool, ServerUnavailable
-from .lsp.registry import IS_WINDOWS, LANGUAGE_OF_SERVER, Registry, ServerSpec, find_native_tsc, find_tsserver
+from .lsp import lombok as lombok_help
+from .lsp.registry import (
+    IS_WINDOWS,
+    LANGUAGE_OF_SERVER,
+    Registry,
+    ServerSpec,
+    find_native_tsc,
+    find_tsserver,
+    ts_project_roots,
+    typescript_package_version,
+)
+
+
+def _exe_version(exe: str) -> str | None:
+    try:
+        proc = subprocess.run([exe, "--version"], capture_output=True, text=True, timeout=15)
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    text = (proc.stdout or proc.stderr or "").strip().splitlines()
+    return text[0] if text else None
 
 
 def _repo_files(repo: Path) -> list[str]:
@@ -87,6 +106,20 @@ def _check_project(spec: ServerSpec, repo: Path) -> list[dict[str, str]]:
             add("ok", f"java {major}")
         if not any((repo / f).exists() for f in ("pom.xml", "build.gradle", "build.gradle.kts")):
             add("warn", "no pom.xml/build.gradle at the repo root; jdtls treats sources as invisible project")
+        if lombok_help.repo_uses_lombok(repo):
+            if lombok_help.jdtls_has_lombok_agent(repo):
+                add("ok", "Lombok: javaagent configured for jdtls (.lsp.json)")
+            else:
+                jar = lombok_help.find_lombok_jar()
+                if jar:
+                    add(
+                        "error",
+                        "Lombok on the classpath but jdtls has no Lombok javaagent — diagnostics miss "
+                        f"generated getters/setters. Add to `.lsp.json`: settings.java.jdt.ls.vmargs = "
+                        f'"{lombok_help.lombok_agent_vmarg(jar)}"',
+                    )
+                else:
+                    add("warn", "Lombok dependency detected but no lombok.jar found under ~/.m2; set LOMBOK_JAR")
     elif spec.name == "typescript":
         native = find_native_tsc(repo, spec.resolve_executable())
         if native:
@@ -97,9 +130,30 @@ def _check_project(spec: ServerSpec, repo: Path) -> list[dict[str, str]]:
                 add("ok", f"tsserver: {ts}")
             else:
                 add("error", "no TypeScript found (project node_modules or global); `npm i -D typescript`")
+        roots = ts_project_roots(repo)
+        if roots:
+            bits = []
+            for pr in roots[:5]:
+                ver = typescript_package_version(pr / "node_modules" / "typescript")
+                rel = pr.relative_to(repo) if pr != repo else Path(".")
+                bits.append(f"{rel}" + (f" (typescript {ver})" if ver else ""))
+            add("ok", "TypeScript projects: " + "; ".join(bits))
         if not any((repo / f).exists() for f in ("tsconfig.json", "jsconfig.json")):
-            add("warn", "no tsconfig.json/jsconfig.json at the repo root: files outside a project get an inferred "
-                        "project and cross-file results may be incomplete")
+            if roots and roots != [repo]:
+                add("info", "no tsconfig at repo root; using nested project(s) above")
+            else:
+                add("warn", "no tsconfig.json/jsconfig.json at the repo root: files outside a project get an inferred "
+                            "project and cross-file results may be incomplete")
+        global_lib = spec.resolve_executable()
+        if global_lib and roots:
+            gts = find_tsserver(repo, global_lib)
+            for pr in roots[:3]:
+                local = pr / "node_modules" / "typescript" / "lib" / "tsserver.js"
+                if local.is_file() and gts and str(local.resolve()) != str(Path(gts).resolve()):
+                    lv = typescript_package_version(pr / "node_modules" / "typescript")
+                    add("warn", f"nested project {pr.relative_to(repo) if pr != repo else '.'} pins TypeScript {lv}; "
+                                "ensure tsserver resolves to that copy (not only a global install)")
+                    break
     elif spec.name == "pyright":
         if not any((repo / f).exists() for f in ("pyrightconfig.json", "pyproject.toml")):
             add("info", "no pyrightconfig.json/pyproject.toml; pyright uses defaults")
@@ -134,11 +188,13 @@ def run_doctor(repo: str, as_json: bool = False, start: bool = True) -> int:
             if spec.name == "typescript" and not exe:
                 native = find_native_tsc(root, None)
                 exe = native[-1] if native else None
+            exe_ver = _exe_version(exe) if exe else None
             entry: dict[str, Any] = {
                 "server": name,
                 "language": LANGUAGE_OF_SERVER.get(name, name),
                 "repo_files": n_files,
                 "executable": exe,
+                "executable_version": exe_ver,
                 "install": spec.install.get("windows" if IS_WINDOWS else "linux"),
                 "notes": _check_project(spec, root) if n_files else [],
             }
@@ -176,6 +232,9 @@ def run_doctor(repo: str, as_json: bool = False, start: bool = True) -> int:
         used = f"{e['repo_files']} files" if e["repo_files"] else "not used in this repo"
         ver = f" {e.get('version')}" if e.get("version") else ""
         print(f"{mark} {e['language']:<11} {e['server']:<11} {used:<22}{ver}")
+        if e.get("executable"):
+            extra = f" ({e['executable_version']})" if e.get("executable_version") else ""
+            print(f"    binary: {e['executable']}{extra}")
         if e["status"] == "missing" and e["repo_files"]:
             print(f"    install: {e['install']}")
         if e.get("error"):

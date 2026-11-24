@@ -199,7 +199,7 @@ kbd { font: 11px var(--font-mono); padding: 1px 6px; border: 1px solid var(--bor
 
 /* ---------------------------------------------------------------- impact map */
 .map-board {
-  position: absolute; inset: 0; display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start;
+  position: absolute; inset: 66px 0 0; display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start;
   padding: 12px; overflow: hidden; background: var(--bg);
 }
 .map-crumbs { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin: 0 auto 8px; width: 100%; }
@@ -226,6 +226,13 @@ kbd { font: 11px var(--font-mono); padding: 1px 6px; border: 1px solid var(--bor
 .map-cell.active, .map-cell.open { outline: 2px solid var(--text); outline-offset: -2px; }
 .map-cell.linked { outline: 2px solid var(--impact); outline-offset: -2px; }
 .map-cell.dim { opacity: 0.42; }
+.map-cell.violation { outline: 2px dashed var(--danger); outline-offset: -3px; z-index: 3; }
+.map-badge {
+  position: absolute; top: 3px; right: 3px; z-index: 2; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px;
+  font: 700 10px/16px var(--font-ui); text-align: center; pointer-events: none; background: var(--surface-2); color: var(--text-2);
+}
+.map-badge.sev-high { background: var(--danger); color: #fff; }
+.map-badge.sev-medium { background: var(--warn); color: #fff; }
 .map-cell.dir .map-label {
   position: relative; z-index: 1; display: inline-flex; align-items: baseline; gap: 6px;
   max-width: calc(100% - 8px); pointer-events: none; margin: 1px 2px; padding: 2px 7px; border-radius: 6px;
@@ -394,12 +401,6 @@ kbd { font: 11px var(--font-mono); padding: 1px 6px; border: 1px solid var(--bor
 .symbol-block .d-section { margin-top: 12px; }
 .symbol-block.is-focus { border-color: var(--changed); box-shadow: var(--ring-selected); }
 .d-section .symbol-block { margin-top: 8px; padding: 4px; }
-.file-detail + .file-detail { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border); }
-.symbol-block { margin-top: 14px; padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--surface); }
-.symbol-block .d-sub { margin-bottom: 8px; }
-.symbol-block .d-section { margin-top: 12px; }
-.symbol-block.is-focus { border-color: var(--changed); box-shadow: var(--ring-selected); }
-.d-section .symbol-block { margin-top: 8px; padding: 4px; }
 .d-danger .d-sub { color: var(--danger); }
 .d-warn .d-sub { color: var(--warn); }
 .sigdiff { font: 12px/1.6 var(--font-mono); border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--border); }
@@ -480,6 +481,51 @@ button.finding-at:hover { color: var(--impact-strong); text-decoration: underlin
 .ai-form .row-check { flex-direction: row; align-items: center; gap: 8px; }
 .ai-note { font-size: 11.5px; color: var(--text-3); padding: 10px 12px; border-radius: var(--radius-sm); background: var(--ai-soft); }
 .ai-error { color: var(--danger); font-size: 12px; margin: 10px 0; white-space: pre-wrap; }
+
+.review-chip {
+  height: 30px; display: inline-flex; align-items: center; gap: 6px; padding: 0 10px; border-radius: 999px; white-space: nowrap;
+  border: 1px solid var(--border-strong); background: var(--surface); color: var(--text-2); font-size: 12px;
+}
+.review-chip b { color: var(--text); font-weight: 600; }
+.review-chip:hover { border-color: var(--text-3); }
+.review-chip-done { color: var(--text-3); }
+.review-chip.done { border-color: color-mix(in srgb, var(--ok) 45%, transparent); }
+.review-chip.done .review-chip-done { color: var(--ok); }
+.review-chip.stale { border-color: var(--warn); background: var(--warn-soft); color: var(--warn); }
+@media (max-width: 1280px) { .review-chip-label { display: none; } }
+.rv-verdict { font: 600 11px var(--font-ui); padding: 3px 8px; border-radius: 999px; background: var(--surface-2); color: var(--text-2); }
+.rv-verdict.rv-approve { background: color-mix(in srgb, var(--ok) 15%, transparent); color: var(--ok); }
+.rv-verdict.rv-request_changes { background: var(--danger-soft); color: var(--danger); }
+.rv-summary { margin: 0; color: var(--text-2); font-size: 13px; line-height: 1.55; white-space: pre-wrap; }
+.rv-kind { font: 600 10.5px/1 var(--font-ui); padding: 3px 6px; border-radius: var(--tag-radius); border: 1px solid var(--border-strong); color: var(--text-3); flex: none; }
+.rv-kind-architecture { color: var(--impact-strong); border-color: color-mix(in srgb, var(--impact) 40%, transparent); }
+.finding.rv-accepted { border-left: 3px solid var(--ok); }
+.finding.rv-rejected { opacity: 0.6; }
+.finding.rv-rejected .finding-title { text-decoration: line-through; }
+.rv-actions { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.rv-actions .btn { height: 26px; padding: 0 10px; font-size: 12px; }
+.rv-state { font: 600 11.5px var(--font-ui); }
+.rv-state-accepted { color: var(--ok); }
+.rv-state-rejected { color: var(--text-3); }
+.rv-comment { border-left: 2px solid var(--border-strong); padding-left: 8px; font-style: italic; }
+.rv-comment-edit { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.rv-comment-edit .btn { align-self: flex-end; height: 26px; }
+.rv-comment-edit textarea, .rv-note {
+  width: 100%; box-sizing: border-box; resize: vertical; padding: 8px 10px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); font: 12.5px/1.5 var(--font-ui);
+}
+.rv-verdict-box { border-top: 1px solid var(--border); padding-top: 16px; }
+.rv-verdict-row { display: flex; gap: 8px; margin-bottom: 10px; }
+.btn-ok.on, .rv-actions .btn-ok { border-color: var(--ok); color: var(--ok); }
+.btn-ok.on { background: color-mix(in srgb, var(--ok) 14%, transparent); }
+.btn-danger.on { border-color: var(--danger); color: var(--danger); background: var(--danger-soft); }
+.arch-head { display: flex; gap: 6px; margin: 12px 0 4px; font: 600 11.5px var(--font-ui); color: var(--text-2); }
+.arch-head span { color: var(--text-3); font-weight: 400; }
+.arch-sign { font: 700 12px var(--font-mono); width: 12px; flex: none; }
+.arch-sign.add { color: var(--ok); }
+.arch-sign.del { color: var(--danger); }
+.arch-cycle { color: var(--danger); font-size: 12px; }
+.chip-danger { color: #fff; background: var(--danger); border-color: transparent; }
 .ai-progress { display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; }
 .ai-progress .kv { padding: 4px 8px; }
 

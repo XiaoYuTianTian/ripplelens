@@ -6,6 +6,8 @@ import os
 import subprocess
 from pathlib import Path
 
+from .git.untracked_skip import should_skip_untracked
+
 SKIP_DIRS = {".git", "node_modules", ".venv", "venv", "__pycache__", ".idea", ".vscode", "target", "dist", "build", ".cache", ".settings", ".gradle", "out", "cmake-build-debug"}
 
 
@@ -73,7 +75,7 @@ def _git_untracked(root: Path) -> list[str]:
         if not raw:
             continue
         rel = raw.decode("utf-8", "replace").replace("\\", "/")
-        if rel.endswith("/") or any(p in SKIP_DIRS for p in rel.split("/")):
+        if rel.endswith("/") or any(p in SKIP_DIRS for p in rel.split("/")) or should_skip_untracked(rel):
             continue
         if rel.split("/")[-1] in {".classpath", ".project", ".factorypath"} or rel.endswith(".class"):
             continue

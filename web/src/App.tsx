@@ -6,7 +6,8 @@ import { computeLayout, type CardData } from "./layout";
 import { DICTS, fmt, I18n, resolveLang, useT } from "./i18n";
 import { Icon, Logo, View, type ViewState } from "./view";
 import Board, { type BoardApi } from "./components/Board";
-import Drawer from "./components/Drawer";
+import Drawer, { type DrawerTab } from "./components/Drawer";
+import { findingScopes, ReviewChip, useAgentReview } from "./review/AgentReview";
 import HeatTree, { pathOfFocus } from "./components/HeatTree";
 import MapView from "./components/MapView";
 import TopBar, { normalizePrefs, useOutsideClose, type Filters, type Prefs } from "./components/TopBar";
@@ -39,7 +40,7 @@ export interface AiSlot {
   badge?: ReactNode;
   marks: Map<string, "high" | "medium" | "low">;
 }
-export type AiHook = (model: Model, focus: Focus, setFocus: (f: Focus) => void, setTab: (t: "details" | "ai") => void) => AiSlot;
+export type AiHook = (model: Model, focus: Focus, setFocus: (f: Focus) => void, setTab: (t: DrawerTab) => void) => AiSlot;
 
 export default function App({ useAi }: { useAi: AiHook }) {
   const [rep, setRep] = useState<Impact | null>(null);
@@ -98,7 +99,10 @@ function Review({ model: m, prefs, onPrefs, onReload, useAi }: { model: Model; p
   const t = useT();
   const K = m.key;
   const [focus, setFocusRaw] = useState<Focus>(null);
-  const [tab, setTab] = useState<"details" | "ai">("details");
+  const [tab, setTab] = useState<DrawerTab>("details");
+  const [pinned, setPinned] = useState(false);
+  const review = useAgentReview(K);
+  const reviewScopes = useMemo(() => findingScopes(review.review), [review.review]);
   const [hoverIds, setHoverIds] = useState<string[] | null>(null);
   const [hoverExtent, setHoverExtent] = useState<"file" | "chain">("chain");
   const [peekIds, setPeekIds] = useState<string[] | null>(null);
@@ -220,6 +224,7 @@ function Review({ model: m, prefs, onPrefs, onReload, useAi }: { model: Model; p
         case "Escape":
           if (menu) setMenu(null);
           else if (focus) setFocus(null);
+          else if (pinned) setPinned(false);
           else setSelected(null);
           break;
         case "j":
@@ -256,7 +261,7 @@ function Review({ model: m, prefs, onPrefs, onReload, useAi }: { model: Model; p
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [changedCards, selected, menu, focus, setFocus, hide, toggleReviewed]);
+  }, [changedCards, selected, menu, focus, pinned, setFocus, hide, toggleReviewed]);
 
   const focusLabel = useMemo(() => {
     if (!focus) return null;
@@ -276,7 +281,11 @@ function Review({ model: m, prefs, onPrefs, onReload, useAi }: { model: Model; p
     }
   }, [m, focus]);
 
-  const drawerOpen = focus !== null && prefs.view === "chain";
+  const drawerOpen = (focus !== null && prefs.view === "chain") || pinned;
+  const openReview = () => {
+    setTab("review");
+    setPinned(true);
+  };
   const treeCollapsed = !!prefs.treeCollapsed;
   const leftInset = treeCollapsed ? 28 : TREE_W;
   const activePath = pathOfFocus(m, focus);
@@ -298,7 +307,7 @@ function Review({ model: m, prefs, onPrefs, onReload, useAi }: { model: Model; p
     setMenu(null);
     setSelected(null);
   };
-  const hasChanges = m.rep.nodes.some((n) => n.change);
+  const hasChanges = m.rep.nodes.some((n) => n.change) || (prefs.view === "map" && m.rep.files.length > 0);
 
   return (
     <View.Provider value={view}>
@@ -327,6 +336,7 @@ function Review({ model: m, prefs, onPrefs, onReload, useAi }: { model: Model; p
           menu={menu}
           onMenu={setMenu}
           aiButton={ai.button}
+          reviewChip={<ReviewChip review={review.review} onOpen={openReview} />}
         />
         <HeatTree
           model={m}
@@ -346,6 +356,8 @@ function Review({ model: m, prefs, onPrefs, onReload, useAi }: { model: Model; p
               model={m}
               focus={focus}
               leftInset={leftInset}
+              rightInset={drawerOpen ? 460 : 0}
+              findings={reviewScopes}
               onFocus={setFocus}
               onHover={(ids, extent) => {
             setHoverExtent(extent ?? "file");
@@ -443,7 +455,11 @@ function Review({ model: m, prefs, onPrefs, onReload, useAi }: { model: Model; p
             onTab={setTab}
             onFocus={setFocus}
             onPeek={setPeekIds}
-            onClose={() => setFocus(null)}
+            onClose={() => {
+              setFocus(null);
+              setPinned(false);
+            }}
+            review={review}
             reviewed={reviewed}
             onToggleReviewed={toggleReviewed}
             ai={ai.panel}

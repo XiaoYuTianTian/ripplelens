@@ -35,7 +35,7 @@ Desktop.ini
 # Local tools, demos, recordings scratch
 _scratch/
 *.log
-.ripplelens/
+/.ripplelens/
 eval/scenario-results/*.tmp
 /tmp/
 

@@ -128,6 +128,16 @@ class ReviewServer:
                     budget = int((q.get("budget") or ["4000"])[0])
                     body = review_context(server.report(), budget).encode("utf-8")
                     return self._send(200, body, "text/plain; charset=utf-8")
+                if url.path in ("/api/review", "/api/review/markdown"):
+                    if not self._same_origin():
+                        return self._json(403, {"error": "forbidden"})
+                    from . import review_store
+
+                    rep = server.report()
+                    review = review_store.load(rep["repo"]["root"])
+                    if url.path == "/api/review/markdown":
+                        return self._send(200, review_store.to_markdown(review, rep).encode("utf-8"), "text/markdown; charset=utf-8")
+                    return self._json(200, {"review": review_store.with_state(review, rep)})
                 if url.path == "/api/ai/status":
                     if not self._same_origin():
                         return self._json(403, {"error": "forbidden"})
@@ -151,7 +161,7 @@ class ReviewServer:
 
             def do_POST(self) -> None:
                 url = urlparse(self.path)
-                if url.path not in ("/api/ai/config", "/api/ai/review"):
+                if url.path not in ("/api/ai/config", "/api/ai/review", "/api/review"):
                     return self._json(404, {"error": "not found"})
                 token = self.headers.get("X-RippleLens-Token", "")
                 if not self._same_origin() or not hmac.compare_digest(token, server.token):
@@ -161,6 +171,16 @@ class ReviewServer:
                     body = json.loads(self.rfile.read(min(length, 1 << 20)) or b"{}")
                 except ValueError:
                     return self._json(400, {"error": "invalid JSON"})
+                if url.path == "/api/review":
+                    from . import review_store
+
+                    rep = server.report()
+                    if not isinstance(body, dict):
+                        return self._json(400, {"error": "expected an object"})
+                    data = review_store.update(rep["repo"]["root"], body)
+                    if data is None:
+                        return self._json(404, {"error": "no agent pre-review to update"})
+                    return self._json(200, {"review": review_store.with_state(data, rep)})
                 from .ai import load_config, save_config
 
                 if url.path == "/api/ai/config":

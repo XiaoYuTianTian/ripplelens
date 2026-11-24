@@ -113,6 +113,16 @@ def build_report(
             by_class[ch.change] = by_class.get(ch.change, 0) + 1
     impacted = [n for n in trav.nodes.values() if n.change is None]
     breaking = [n for n in trav.nodes.values() if n.breaking]
+    edges_by_kind: dict[str, int] = {}
+    for e in trav.edges.values():
+        edges_by_kind[e.kind] = edges_by_kind.get(e.kind, 0) + 1
+    impacted_by_via: dict[str, int] = {}
+    for n in impacted:
+        if n.via:
+            impacted_by_via[n.via] = impacted_by_via.get(n.via, 0) + 1
+    hubs = sum(1 for t in trav.truncation if t.get("reason") == "hub")
+    budgets = sum(1 for t in trav.truncation if t.get("reason") == "budget")
+    impact_analyzed = not trav.traversal_skipped
     blind = {lang: BLIND_SPOTS[lang] for lang in sorted(langs) if lang in BLIND_SPOTS}
     grouped = Grouper(head_root, Path(str(spec.repo)).name).build(
         [f["path"] for f in files_out] + [n["path"] for n in nodes_out]
@@ -131,13 +141,19 @@ def build_report(
         "servers": servers,
         "summary": {
             "files_changed": len(spec.files),
+            "untracked_skipped": spec.untracked_skipped,
             "entities_changed": sum(by_class.values()),
             "by_change": by_class,
-            "impacted": len(impacted),
-            "impacted_files": len({n.path for n in impacted}),
+            "impact_analyzed": impact_analyzed,
+            "impacted": len(impacted) if impact_analyzed else None,
+            "impacted_files": len({n.path for n in impacted}) if impact_analyzed else None,
+            "impacted_by_via": impacted_by_via if impact_analyzed else {},
+            "edges_by_kind": edges_by_kind,
             "breaking": len(breaking),
             "degraded": sum(1 for n in trav.nodes.values() if n.confidence == "degraded"),
             "truncated": bool(trav.truncation),
+            "truncation_hubs": hubs,
+            "truncation_budget": budgets,
         },
         "files": files_out,
         "nodes": nodes_out,
@@ -187,16 +203,81 @@ CHANGE_LABEL = {
 }
 
 
+def architecture_markdown(arch: dict[str, Any] | None) -> list[str]:
+    if not arch:
+        return []
+    s = arch["summary"]
+    if not (s["deps_added"] or s["deps_removed"] or s["contracts_crossing"] or s["cycles"] or s["violations"]):
+        return []
+    out = ["## Architecture", ""]
+    rules = arch["rules"]
+    out.append(f"Rules: `{rules['source']}`" if rules.get("source") else "Rules: none (`.ripplelens/architecture.toml` not found)")
+    if rules.get("error"):
+        out.append(f"> ⚠ {rules['error']}")
+    out.append("")
+    for v in arch["violations"]:
+        out.append(f"- **{v['rule']} violation** `{v['file']}:{v['line']}` `{v['from']}` → `{v['to']}` ({v['detail']}){': ' + v['reason'] if v['reason'] else ''}")
+    for c in arch["cycles"]:
+        out.append(f"- **new module cycle** {' → '.join(c)}")
+    for d in arch["deps_added"]:
+        if d["cross_module"] or d["external"]:
+            out.append(f"- + dependency `{d['from_module']}` → `{d['to_module']}` at `{d['file']}:{d['line']}` (`{d['import']}`)")
+    for d in arch["deps_removed"]:
+        if d["cross_module"] or d["external"]:
+            out.append(f"- − dependency `{d['from_module']}` → `{d['to_module']}` (was `{d['file']}:{d['line']}`)")
+    for c in arch["contracts"]:
+        if c["external_modules"]:
+            out.append(f"- contract `{c['qualname']}` ({c['change']}) in `{c['module']}` reaches {', '.join(f'`{m}`' for m in c['external_modules'])}")
+    out.append("")
+    return out
+
+
+def _impact_summary_line(s: dict[str, Any]) -> str:
+    if s.get("impact_analyzed") is False:
+        return (
+            f"**{s['files_changed']} files, {s['entities_changed']} changed entities, "
+            f"impact not analyzed (raise --max-nodes or see warnings), {s['breaking']} with compile errors.**"
+        )
+    via = s.get("impacted_by_via") or {}
+    via_bits = ", ".join(f"{k} {via[k]}" for k in sorted(via, key=lambda x: (-via[x], x)))
+    via_tail = f" ({via_bits})" if via_bits else ""
+    return (
+        f"**{s['files_changed']} files, {s['entities_changed']} changed entities, "
+        f"{s['impacted']} impacted entities in {s['impacted_files']} files{via_tail}, "
+        f"{s['breaking']} with compile errors.**"
+    )
+
+
 def to_markdown(rep: dict[str, Any], max_impacted_per_seed: int = 15) -> str:
     s = rep["summary"]
     nodes = {n["id"]: n for n in rep["nodes"]}
     lines = [
         f"# ripplelens: {rep['repo']['base']['ref']} → {rep['repo']['head']['ref']}",
         "",
-        f"**{s['files_changed']} files, {s['entities_changed']} changed entities, "
-        f"{s['impacted']} impacted entities in {s['impacted_files']} files, {s['breaking']} with compile errors.**",
+        _impact_summary_line(s),
         "",
     ]
+    if s.get("untracked_skipped"):
+        lines.append(f"> ℹ Skipped {s['untracked_skipped']} untracked paths (AI/cache noise). Set `RIPPLELENS_NO_UNTRACKED_SKIP=1` to include all untracked files git would list.")
+        lines.append("")
+    for w in rep.get("warnings") or []:
+        if "exceeds --max-nodes" in w or "impact traversal was not run" in w:
+            lines.append(f"> ⚠ **{w}**")
+            lines.append("")
+            break
+    th, tb = s.get("truncation_hubs", 0), s.get("truncation_budget", 0)
+    if th or tb or rep.get("truncation"):
+        bits = []
+        if th:
+            bits.append(f"{th} hub fold(s)")
+        if tb:
+            bits.append(f"{tb} budget stop(s)")
+        n_trunc = len(rep.get("truncation") or [])
+        lines.append(
+            f"> ⚠ Truncation: {', '.join(bits) or f'{n_trunc} event(s)'} — "
+            "impact lists may be incomplete; raise --max-nodes or hub thresholds to expand."
+        )
+        lines.append("")
     bad = [sv for sv in rep["servers"] if sv.get("status") != "ok"]
     for sv in bad:
         lines.append(f"> ⚠ {sv['name']} {sv['status']}: {sv.get('reason') or ''}")
@@ -209,6 +290,7 @@ def to_markdown(rep: dict[str, Any], max_impacted_per_seed: int = 15) -> str:
             for b in n["breaking"]:
                 lines.append(f"- `{n['path']}:{b['line']}` in `{n['qualname']}`: {b['message']}")
         lines.append("")
+    lines += architecture_markdown(rep.get("architecture"))
     lines += ["## Changes", ""]
     locate = rep.get("locate") or {}
     group_label = {g["id"]: f"{g['module']} / {g['package'] or '.'}" for g in rep.get("groups") or []}
@@ -287,7 +369,9 @@ def review_context(
     s = rep["summary"]
     out = [
         f"ripplelens impact {rep['repo']['base']['ref']}..{rep['repo']['head']['ref']}: "
-        f"{s['entities_changed']} changed, {s['impacted']} impacted, {s['breaking']} with compile errors.",
+        f"{s['entities_changed']} changed, "
+        f"{s['impacted'] if s.get('impact_analyzed', True) else 'not analyzed'} impacted, "
+        f"{s['breaking']} with compile errors.",
     ]
     nodes = rep["nodes"]
     order = (

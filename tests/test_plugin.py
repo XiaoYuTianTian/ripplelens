@@ -68,5 +68,7 @@ def test_tools_named_in_docs_exist():
     src = (ROOT / "src/ripplelens/mcp_server.py").read_text(encoding="utf-8")
     tools = set(re.findall(r"async def (\w+)\(", src))
     for doc in ("skills/ripplelens/SKILL.md", "commands/review.md"):
-        named = set(re.findall(r"`(analyze_diff|get_impact|explain|get_review_context|open_review_ui)", (ROOT / doc).read_text(encoding="utf-8")))
+        text = (ROOT / doc).read_text(encoding="utf-8")
+        named = set(re.findall(r"`(analyze_diff|get_impact|explain|get_review_context|get_architecture|submit_review|open_review_ui)", text))
         assert named <= tools, (doc, named - tools)
+    assert {"get_architecture", "submit_review"} <= set(re.findall(r"`(\w+)`", (ROOT / "commands/review.md").read_text(encoding="utf-8")))

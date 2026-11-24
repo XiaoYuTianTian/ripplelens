@@ -1,6 +1,6 @@
 """MCP server (stdio). Keeps language servers warm and re-analyzes when the tree changes.
 
-Tools: analyze_diff, get_impact, explain, get_review_context, open_review_ui.
+Tools: analyze_diff, get_impact, explain, get_review_context, get_architecture, submit_review, open_review_ui.
 """
 
 from __future__ import annotations
@@ -177,13 +177,56 @@ def summarize(rep: dict[str, Any], top: int = 30) -> dict[str, Any]:
             _brief(n) | {"why": [by_id[p]["qualname"] for p in rep["paths"].get(n["id"], []) if p in by_id]}
             for n in impacted[:top]
         ],
-        "omitted_impacted": max(0, len(impacted) - top),
+        "omitted_impacted": max(0, len(impacted) - top) if rep["summary"].get("impact_analyzed", True) else None,
+        "warnings": rep.get("warnings", [])[:8],
         "truncation": rep["truncation"][:10],
         "blind_spots": rep["blind_spots"],
         "files_degraded": {f["path"]: f["degraded"] for f in rep["files"] if f["degraded"]},
-        "next": "get_impact(symbol) for call sites and code; explain(from, to) for a path; "
-        "get_review_context(budget_tokens) for prose; open_review_ui() for the human view.",
+        "architecture": architecture_brief(rep.get("architecture")),
+        "next": "get_impact(symbol) for call sites and code; get_architecture() for module dependencies and rules; "
+        "explain(from, to) for a path; submit_review(...) to hand your pre-review to the human; "
+        "open_review_ui() for the human view.",
     }
+
+
+def architecture_brief(arch: dict[str, Any] | None, top: int = 10) -> dict[str, Any] | None:
+    if not arch:
+        return None
+    cross = [d for d in arch["deps_added"] if d["cross_module"] or d["external"]]
+    return {
+        "summary": arch["summary"],
+        "rules": arch["rules"].get("source"),
+        "violations": [f"{v['file']}:{v['line']} {v['rule']}: {v['from']} -> {v['to']} ({v['reason'] or v['detail']})" for v in arch["violations"][:top]],
+        "new_cycles": [" -> ".join(c) for c in arch["cycles"][:top]],
+        "deps_added": [f"{d['from_module']} -> {d['to_module']} at {d['file']}:{d['line']} ({d['import']})" for d in cross[:top]],
+        "contracts_crossing_modules": [
+            f"{c['qualname']} ({c['change']}) in {c['module']} -> {', '.join(c['external_modules'])}"
+            for c in arch["contracts"]
+            if c["external_modules"]
+        ][:top],
+    }
+
+
+def architecture_full(rep: dict[str, Any]) -> dict[str, Any]:
+    arch = rep.get("architecture")
+    if not arch:
+        return {"error": "no architecture evidence in this report (analysis failed or an old report)", "warnings": rep["warnings"][:5]}
+    out = dict(arch)
+    if "modules" not in out:
+        out["modules"] = sorted({g["module_path"] or "." for g in rep.get("groups") or []})
+    src = arch["rules"].get("source")
+    if src:
+        try:
+            out["rules_text"] = (Path(rep["repo"]["analyzed_root"]) / src).read_text(encoding="utf-8")[:6000]
+        except OSError:
+            pass
+    else:
+        out["rules_hint"] = (
+            "No .ripplelens/architecture.toml: judge dependencies on their merits and phrase findings as suggestions, "
+            "not violations. A rules file looks like: layers = [\"apps/*\", \"packages/api\", \"packages/core\"] and "
+            "[[deny]] from = \"packages/core\" to = [\"packages/api\"] reason = \"...\"."
+        )
+    return out
 
 
 def impact_of(rep: dict[str, Any], symbol: str, depth: int = 2) -> dict[str, Any]:
@@ -325,6 +368,33 @@ def build_server(session: Session):
         """Prioritized plain-text review context (compile errors, contract changes, top impacted) within a token budget."""
         rep, _ = await anyio.to_thread.run_sync(lambda: session.report(repo))
         return review_context(rep, budget_tokens)
+
+    @mcp.tool()
+    async def get_architecture(repo: str | None = None) -> dict:
+        """Module/package evidence for an architecture review: dependencies the diff adds or removes (with file:line),
+        contract changes whose callers live in other modules, new module cycles, and violations of
+        .ripplelens/architecture.toml (rules text included when present)."""
+        rep, _ = await anyio.to_thread.run_sync(lambda: session.report(repo))
+        return architecture_full(rep)
+
+    @mcp.tool()
+    async def submit_review(summary: str, verdict: str, findings: list[dict], repo: str | None = None) -> dict:
+        """Hand your pre-review to the human reviewer; it appears in the review UI where each finding is accepted or rejected.
+
+        summary: 2-5 sentences: what the change does architecturally and the main risks.
+        verdict: approve | comment | request_changes.
+        findings: list of {severity: high|medium|low, kind: architecture|contract|behavior, title, file, line,
+          scope (module or package directory the finding is about; defaults to the file's directory),
+          evidence (quote the tool output that proves it), suggestion}. Use file:line values from the tools.
+        Replaces any earlier pre-review of this repository.
+        """
+        rep, _ = await anyio.to_thread.run_sync(lambda: session.report(repo))
+        from . import review_store
+
+        data = review_store.submit(rep["repo"]["root"], rep, summary, verdict, findings)
+        state = review_store.with_state(data, rep) or {}
+        return {"stored": str(review_store.store_path(rep["repo"]["root"])), "findings": state.get("counts"),
+                "next": "call open_review_ui() and tell the user to confirm or reject each finding there"}
 
     @mcp.tool()
     async def open_review_ui(repo: str | None = None) -> dict:
